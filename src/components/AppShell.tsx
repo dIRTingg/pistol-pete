@@ -39,16 +39,7 @@ export default function AppShell({ profile }: { profile: Profile }) {
       {/* ── Header ── */}
       <div style={{ background: Y, borderBottom: `4px solid ${BK}`, padding: '0 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 64, position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ fontWeight: 900, fontSize: 20, textTransform: 'uppercase', letterSpacing: 1, display: 'flex', alignItems: 'center', gap: 10 }}>
-          {/* Pete freigestellt – kein weißer Hintergrund, overflow sichtbar */}
-          <div style={{ position: 'relative', width: 48, height: 64, flexShrink: 0 }}>
-            <img
-              src="/icons/pete.png"
-              alt="Pete"
-              style={{ position: 'absolute', bottom: 0, left: 0, height: 72, width: 'auto', filter: 'drop-shadow(1px 1px 3px rgba(0,0,0,0.25))' }}
-              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-            />
-          </div>
-          TV Häslach
+                    TV Häslach
           <span style={{ background: BK, color: Y, borderRadius: 4, padding: '2px 7px', fontSize: 12 }}>1905</span>
           <span style={{ fontWeight: 400, fontSize: 14, borderLeft: `2px solid ${BK}`, paddingLeft: 10, marginLeft: 4 }}>
             Pistol Pete
