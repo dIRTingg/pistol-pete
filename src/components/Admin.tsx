@@ -44,7 +44,7 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
     if (!corr) return
 
     await supabase.from('correction_requests').update({
-      status: approve ? 'approved' : 'rejected',
+      status: (approve ? 'approved' : 'rejected') as 'approved' | 'rejected',
       resolved_at: new Date().toISOString(),
     }).eq('id', id)
 
