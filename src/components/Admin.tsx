@@ -43,8 +43,9 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
     const corr = corrections.find(c => c.id === id)
     if (!corr) return
 
-    await supabase.from('correction_requests').update({
-      status: (approve ? 'approved' : 'rejected') as 'approved' | 'rejected',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase as any).from('correction_requests').update({
+      status: approve ? 'approved' : 'rejected',
       resolved_at: new Date().toISOString(),
     }).eq('id', id)
 
