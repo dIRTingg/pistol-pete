@@ -20,7 +20,6 @@ export default function ConfirmPage() {
   const [err, setErr] = useState('')
   const [done, setDone] = useState(false)
   const [userName, setUserName] = useState('')
-  const [debugInfo, setDebugInfo] = useState('')
 
   useEffect(() => {
     const init = async () => {
@@ -32,8 +31,6 @@ export default function ConfirmPage() {
       const accessToken = params.get('access_token')
       const refreshToken = params.get('refresh_token')
       const type = params.get('type')
-
-      setDebugInfo(`hash: "${hash.substring(0,40)}..." | type: ${type} | hasToken: ${!!accessToken}`)
 
       if (accessToken && refreshToken) {
         const { data, error } = await supabase.auth.setSession({
@@ -91,13 +88,6 @@ export default function ConfirmPage() {
 
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
         <div style={{ width: '100%', maxWidth: 420 }}>
-
-          {/* Debug Info - temporär */}
-          {debugInfo && (
-            <div style={{ background: '#f0f0f0', border: '1px solid #ccc', borderRadius: 4, padding: 10, marginBottom: 12, fontSize: 11, fontFamily: 'monospace', wordBreak: 'break-all' }}>
-              🔍 {debugInfo}
-            </div>
-          )}
 
           <div style={{ background: Y, border: `3px solid ${BK}`, borderRadius: 12, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
             <img src="/icons/pete.png" alt="Pete" style={{ height: 90, width: 'auto' }}
