@@ -21,12 +21,10 @@ export default function History({ profile, refreshKey }: { profile: Profile; ref
   const load = useCallback(async () => {
     const supabase = createClient()
     setLoading(true)
-
     const [{ data: sessData }, { data: corrData }] = await Promise.all([
       supabase.from('sessions').select('*').eq('user_id', profile.id).order('start_at', { ascending: false }),
       supabase.from('correction_requests').select('*').eq('user_id', profile.id).eq('status', 'pending'),
     ])
-
     setSessions(sessData || [])
     const pm: Record<string, CorrectionRequest> = {}
     ;(corrData || []).forEach(c => { pm[c.session_id] = c })
@@ -52,8 +50,10 @@ export default function History({ profile, refreshKey }: { profile: Profile; ref
     load()
   }
 
-  const total = sessions.filter(s => s.status !== 'cancelled').reduce((a, s) => a + Number(s.cost), 0)
-  const totalMin = sessions.reduce((a, s) => a + s.duration_min, 0)
+  // Nur bestätigte (nicht stornierte) Sessions für die Summe
+  const activeSessions = sessions.filter(s => s.status !== 'cancelled')
+  const total = activeSessions.reduce((a, s) => a + Number(s.cost), 0)
+  const totalMin = activeSessions.reduce((a, s) => a + s.duration_min, 0)
 
   if (loading) return <div style={{ textAlign: 'center', padding: 40, color: '#888' }}>⏳ Lade Daten...</div>
 
@@ -65,7 +65,11 @@ export default function History({ profile, refreshKey }: { profile: Profile; ref
           📋 Meine Nutzungshistorie
         </div>
         <div style={{ padding: 20, display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
-          {[[sessions.length, 'Sessions', '#f8f8f8'], [`${totalMin} Min`, 'Gesamt', '#f8f8f8'], [`${total} €`, 'Kosten', Y]].map(([v, k, bg]) => (
+          {[
+            [activeSessions.length, 'Sessions', '#f8f8f8'],
+            [`${totalMin} Min`, 'Gesamt', '#f8f8f8'],
+            [`${total.toFixed(2)} €`, 'Kosten', Y]
+          ].map(([v, k, bg]) => (
             <div key={String(k)} style={{ textAlign: 'center', background: String(bg), border: bg === Y ? `2px solid ${BK}` : 'none', borderRadius: 6, padding: 14 }}>
               <div style={{ fontSize: 26, fontWeight: 900 }}>{v}</div>
               <div style={{ fontSize: 11, textTransform: 'uppercase', color: '#555' }}>{k}</div>
@@ -120,18 +124,27 @@ export default function History({ profile, refreshKey }: { profile: Profile; ref
               <tbody>
                 {sessions.map(s => {
                   const hasPending = !!pendingMap[s.id]
+                  const isCancelled = s.status === 'cancelled'
                   return (
-                    <tr key={s.id} style={{ background: s.status === 'cancelled' ? '#fff8f8' : '#fff' }}>
-                      <td style={{ padding: '10px 12px', borderBottom: '1px solid #eee' }}>{formatDate(s.start_at)}</td>
-                      <td style={{ padding: '10px 12px', borderBottom: '1px solid #eee' }}>{formatTime(s.start_at)}</td>
-                      <td style={{ padding: '10px 12px', borderBottom: '1px solid #eee' }}>{s.duration_min} Min.</td>
-                      <td style={{ padding: '10px 12px', borderBottom: '1px solid #eee' }}><strong>{s.cost} €</strong></td>
+                    <tr key={s.id} style={{ background: isCancelled ? '#fff8f8' : '#fff' }}>
+                      <td style={{ padding: '10px 12px', borderBottom: '1px solid #eee', textDecoration: isCancelled ? 'line-through' : 'none', color: isCancelled ? '#aaa' : BK }}>{formatDate(s.start_at)}</td>
+                      <td style={{ padding: '10px 12px', borderBottom: '1px solid #eee', textDecoration: isCancelled ? 'line-through' : 'none', color: isCancelled ? '#aaa' : BK }}>{formatTime(s.start_at)}</td>
+                      <td style={{ padding: '10px 12px', borderBottom: '1px solid #eee', color: isCancelled ? '#aaa' : BK }}>
+                        {isCancelled ? <s>{s.duration_min} Min.</s> : `${s.duration_min} Min.`}
+                      </td>
                       <td style={{ padding: '10px 12px', borderBottom: '1px solid #eee' }}>
-                        <span style={badge(s.status === 'confirmed' ? '#34c759' : '#ff3b30')}>{s.status === 'confirmed' ? 'OK' : 'Storniert'}</span>
+                        <strong style={{ color: isCancelled ? '#aaa' : BK }}>
+                          {isCancelled ? '0,00 €' : `${Number(s.cost).toFixed(2)} €`}
+                        </strong>
+                      </td>
+                      <td style={{ padding: '10px 12px', borderBottom: '1px solid #eee' }}>
+                        <span style={badge(isCancelled ? '#ff3b30' : '#34c759')}>
+                          {isCancelled ? 'Storniert' : 'OK'}
+                        </span>
                         {hasPending && <span style={{ ...badge('#ff9f0a'), marginLeft: 4 }}>⏳ Korrektur</span>}
                       </td>
                       <td style={{ padding: '10px 12px', borderBottom: '1px solid #eee' }}>
-                        {s.status !== 'cancelled' && !hasPending && !corrForm && (
+                        {!isCancelled && !hasPending && !corrForm && (
                           <button onClick={() => { setCorrForm(s); setCorrDur(s.duration_min); setCorrNote('') }}
                             style={{ background: '#fff', color: BK, border: `2px solid ${BK}`, borderRadius: 4, padding: '4px 10px', cursor: 'pointer', fontWeight: 700, fontSize: 12 }}>
                             ✏️ Korrektur
@@ -142,6 +155,18 @@ export default function History({ profile, refreshKey }: { profile: Profile; ref
                   )
                 })}
               </tbody>
+              {/* Summenzeile */}
+              <tfoot>
+                <tr style={{ background: Y }}>
+                  <td colSpan={2} style={{ padding: '10px 12px', fontWeight: 900, fontSize: 13, textTransform: 'uppercase' }}>Gesamt</td>
+                  <td style={{ padding: '10px 12px', fontWeight: 900 }}>{totalMin} Min.</td>
+                  <td style={{ padding: '10px 12px', fontWeight: 900 }}>{total.toFixed(2)} €</td>
+                  <td colSpan={2} style={{ padding: '10px 12px', fontSize: 12, color: '#555' }}>
+                    {sessions.filter(s => s.status === 'cancelled').length > 0 &&
+                      `(${sessions.filter(s => s.status === 'cancelled').length} storniert)`}
+                  </td>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div>
