@@ -41,23 +41,17 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
   // ── Korrektur genehmigen / ablehnen ──────────────────────────────────────
   const resolveCorr = async (id: string, approve: boolean) => {
     const supabase = createClient()
-    const corr = corrections.find(c => c.id === id)
-    if (!corr) return
-
-    await supabase.from('correction_requests').update({
-      status: approve ? 'approved' : 'rejected',
-      resolved_at: new Date().toISOString(),
-    }).eq('id', id)
-
-    if (approve) {
-      await supabase.from('sessions').update({
-        duration_min: corr.requested_duration,
-        cost: calcCost(corr.requested_duration),
-        status: corr.requested_duration === 0 ? 'cancelled' : 'confirmed',
-      }).eq('id', corr.session_id)
+    const { error } = await supabase.rpc('resolve_correction', {
+      p_correction_id: id,
+      p_approve: approve,
+    })
+    if (error) {
+      alert('Fehler: ' + error.message)
+      return
     }
     setTick(t => t + 1)
   }
+
 
   // ── CSV Export ────────────────────────────────────────────────────────────
   const exportCSV = () => {
