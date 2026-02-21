@@ -1,5 +1,5 @@
 // src/lib/supabase/types.ts
-// Typen spiegeln das Datenbankschema 1:1 wider
+// Update-Typen als string um TypeScript never-Inferenz zu vermeiden
 
 export type Database = {
   public: {
@@ -8,18 +8,18 @@ export type Database = {
         Row: {
           id: string
           name: string
-          role: 'admin' | 'member'
+          role: string
           created_at: string
         }
         Insert: {
           id: string
           name: string
-          role?: 'admin' | 'member'
+          role?: string
           created_at?: string
         }
         Update: {
           name?: string
-          role?: 'admin' | 'member'
+          role?: string
         }
       }
       sessions: {
@@ -31,7 +31,7 @@ export type Database = {
           duration_min: number
           cost: number
           note: string | null
-          status: 'confirmed' | 'cancelled'
+          status: string
           created_at: string
         }
         Insert: {
@@ -42,13 +42,13 @@ export type Database = {
           duration_min: number
           cost: number
           note?: string | null
-          status?: 'confirmed' | 'cancelled'
+          status?: string
           created_at?: string
         }
         Update: {
           duration_min?: number
           cost?: number
-          status?: 'confirmed' | 'cancelled'
+          status?: string
           note?: string | null
         }
       }
@@ -60,7 +60,7 @@ export type Database = {
           user_name: string
           requested_duration: number
           note: string | null
-          status: 'pending' | 'approved' | 'rejected'
+          status: string
           created_at: string
           resolved_at: string | null
         }
@@ -71,12 +71,14 @@ export type Database = {
           user_name: string
           requested_duration: number
           note?: string | null
-          status?: 'pending'
+          status?: string
           created_at?: string
         }
         Update: {
-          status?: 'pending' | 'approved' | 'rejected'
+          status?: string
           resolved_at?: string
+          duration_min?: number
+          cost?: number
         }
       }
     }

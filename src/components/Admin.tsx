@@ -7,7 +7,6 @@ import type { Session, CorrectionRequest, Profile } from '@/lib/supabase/types'
 
 const Y = '#FFE600'; const BK = '#111'
 const badge = (bg: string): React.CSSProperties => ({ background: bg, color: (bg === Y || bg === '#fff') ? BK : '#fff', borderRadius: 4, padding: '3px 9px', fontSize: 12, fontWeight: 700, display: 'inline-block', border: `1.5px solid ${BK}` })
-const inp: React.CSSProperties = { width: '100%', border: `2px solid ${BK}`, borderRadius: 4, padding: '8px 10px', fontSize: 14, background: '#fff', boxSizing: 'border-box' }
 
 type CorrWithSession = CorrectionRequest & { sessions: Session | null }
 
@@ -17,7 +16,6 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
   const [sessions, setSessions] = useState<Session[]>([])
   const [users, setUsers] = useState<Profile[]>([])
   const [loading, setLoading] = useState(true)
-  const [newU, setNewU] = useState({ name: '', email: '', password: '' })
   const [msg, setMsg] = useState('')
   const [tick, setTick] = useState(0)
 
@@ -43,8 +41,7 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
     const corr = corrections.find(c => c.id === id)
     if (!corr) return
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).from('correction_requests').update({
+    await supabase.from('correction_requests').update({
       status: approve ? 'approved' : 'rejected',
       resolved_at: new Date().toISOString(),
     }).eq('id', id)
@@ -57,16 +54,6 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
       }).eq('id', corr.session_id)
     }
     setTick(t => t + 1)
-  }
-
-  const addUser = async () => {
-    if (!newU.name || !newU.email || !newU.password) { setMsg('❌ Alle Felder ausfüllen.'); return }
-    const supabase = createClient()
-
-    // Supabase Admin API ist clientseitig nicht verfügbar.
-    // Nutzer müssen über das Supabase Dashboard angelegt werden.
-    // Alternativ: eigene API Route /api/users/create (Server-seitig mit service_role key)
-    setMsg('ℹ️ Neue Nutzer über Supabase Dashboard anlegen: Authentication → Users → Invite user')
   }
 
   const pending = corrections.filter(c => c.status === 'pending')
@@ -97,7 +84,6 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
       </div>
       <div style={{ padding: 20 }}>
 
-        {/* ── CORRECTIONS ── */}
         {tab === 'corrections' && <>
           <p style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, fontSize: 13, margin: '0 0 14px' }}>Offene Anfragen ({pending.length})</p>
           {pending.length === 0 && <p style={{ color: '#888' }}>Keine offenen Korrekturen. 👍</p>}
@@ -129,7 +115,6 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
           </>}
         </>}
 
-        {/* ── SESSIONS ── */}
         {tab === 'sessions' && <>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
@@ -159,11 +144,10 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
           </div>
         </>}
 
-        {/* ── USERS ── */}
         {tab === 'users' && <>
           <div style={{ background: '#f0f4ff', border: `2px solid ${BK}`, borderLeft: `5px solid ${BK}`, borderRadius: 6, padding: 16, marginBottom: 20, fontSize: 14 }}>
             <strong>Neue Nutzer anlegen:</strong> Supabase Dashboard → Authentication → Users → <em>Invite user</em><br />
-            Danach Rolle setzen: Supabase Dashboard → Table Editor → profiles → Rolle auf <code>admin</code> oder <code>member</code> setzen.
+            Danach Rolle setzen: Table Editor → profiles → Rolle auf <code>admin</code> oder <code>member</code> setzen.
           </div>
           <p style={{ fontWeight: 700, textTransform: 'uppercase', fontSize: 13, letterSpacing: 1, margin: '0 0 12px' }}>Aktive Nutzer ({users.length})</p>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
@@ -182,6 +166,7 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
               ))}
             </tbody>
           </table>
+          {msg && <p style={{ marginTop: 12, fontSize: 13, color: '#888' }}>{msg}</p>}
         </>}
       </div>
     </div>
