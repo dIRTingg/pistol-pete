@@ -1,0 +1,114 @@
+'use client'
+// src/app/login/page.tsx
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
+
+const Y = '#FFE600'
+const BK = '#111'
+
+export default function LoginPage() {
+  const router = useRouter()
+  const [email, setEmail] = useState('')
+  const [pw, setPw] = useState('')
+  const [err, setErr] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const doLogin = async () => {
+    if (!email || !pw) { setErr('Bitte E-Mail und Passwort eingeben.'); return }
+    setLoading(true)
+    setErr('')
+    const supabase = createClient()
+    const { error } = await supabase.auth.signInWithPassword({ email, password: pw })
+    if (error) {
+      setErr('E-Mail oder Passwort nicht korrekt.')
+      setLoading(false)
+    } else {
+      router.push('/')
+      router.refresh()
+    }
+  }
+
+  return (
+    <div style={{ minHeight: '100vh', background: '#f4f4ef', display: 'flex', flexDirection: 'column' }}>
+      {/* Header */}
+      <div style={{ background: Y, borderBottom: `4px solid ${BK}`, padding: '0 16px', height: 60, display: 'flex', alignItems: 'center' }}>
+        <span style={{ fontWeight: 900, fontSize: 20, textTransform: 'uppercase', letterSpacing: 1, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ background: BK, color: Y, borderRadius: 4, padding: '2px 7px', fontSize: 12 }}>1905</span>
+          TV Häslach
+          <span style={{ fontWeight: 400, fontSize: 14 }}>Tennis</span>
+        </span>
+      </div>
+
+      {/* Login Form */}
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+        <div style={{ width: '100%', maxWidth: 420 }}>
+
+          {/* Pete Hero */}
+          <div style={{ background: Y, border: `3px solid ${BK}`, borderRadius: 12, padding: '24px 24px 16px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 20, marginBottom: 16 }}>
+            {/* Pete image - lege icons/pete.png in /public/icons/ */}
+            <img src="/icons/pete.png" alt="Pistol Pete" style={{ height: 140, width: 'auto', marginBottom: -4, filter: 'drop-shadow(2px 4px 6px rgba(0,0,0,0.25))', imageRendering: 'auto' }}
+              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
+            <div style={{ textAlign: 'left', paddingBottom: 8 }}>
+              <div style={{ fontWeight: 900, fontSize: 38, textTransform: 'uppercase', letterSpacing: 2, lineHeight: 1, color: BK }}>
+                Pistol<br />Pete
+              </div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: BK, marginTop: 4, borderTop: `2px solid ${BK}`, paddingTop: 4 }}>
+                Ballmaschine<br />TV Häslach
+              </div>
+            </div>
+          </div>
+
+          {/* Card */}
+          <div style={{ background: '#fff', border: `2px solid ${BK}`, borderRadius: 8, overflow: 'hidden' }}>
+            <div style={{ background: Y, borderBottom: `2px solid ${BK}`, padding: '12px 20px', fontWeight: 900, fontSize: 18, textTransform: 'uppercase', letterSpacing: 1 }}>
+              🔐 Anmelden
+            </div>
+            <div style={{ padding: 20 }}>
+              {err && (
+                <div style={{ border: '2px solid #ff3b30', borderLeft: '5px solid #ff3b30', background: '#fff0ee', borderRadius: 4, padding: '10px 14px', marginBottom: 14, fontSize: 14 }}>
+                  {err}
+                </div>
+              )}
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', fontWeight: 700, fontSize: 13, marginBottom: 5, textTransform: 'uppercase', letterSpacing: 0.5 }}>E-Mail</label>
+                <input
+                  style={{ width: '100%', border: `2px solid ${BK}`, borderRadius: 4, padding: '10px 12px', fontSize: 16, background: '#fff', boxSizing: 'border-box' as const }}
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && doLogin()}
+                  placeholder="deine@email.de"
+                  autoComplete="email"
+                />
+              </div>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', fontWeight: 700, fontSize: 13, marginBottom: 5, textTransform: 'uppercase', letterSpacing: 0.5 }}>Passwort</label>
+                <input
+                  style={{ width: '100%', border: `2px solid ${BK}`, borderRadius: 4, padding: '10px 12px', fontSize: 16, background: '#fff', boxSizing: 'border-box' as const }}
+                  type="password"
+                  value={pw}
+                  onChange={e => setPw(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && doLogin()}
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                />
+              </div>
+              <button
+                onClick={doLogin}
+                disabled={loading}
+                style={{ background: Y, color: BK, border: `2px solid ${BK}`, borderRadius: 4, padding: '12px 22px', cursor: loading ? 'not-allowed' : 'pointer', fontWeight: 900, fontSize: 16, letterSpacing: 0.5, width: '100%', opacity: loading ? 0.7 : 1 }}
+              >
+                {loading ? 'Wird angemeldet...' : '🔐 Anmelden'}
+              </button>
+              <p style={{ fontSize: 12, color: '#888', marginTop: 16, textAlign: 'center', lineHeight: 1.6 }}>
+                Kein Zugang? Wende dich an:<br />
+                <strong>Florian Haustein</strong> · WhatsApp: 01742418407
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
