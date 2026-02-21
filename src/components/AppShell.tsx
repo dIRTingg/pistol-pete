@@ -14,10 +14,6 @@ const BK = '#111'
 
 type Page = 'checkin' | 'history' | 'guide' | 'admin'
 
-const icons: Record<string, string> = {
-  plus: '➕', history: '📋', book: '📖', shield: '🛡️', logout: '🚪',
-}
-
 export default function AppShell({ profile }: { profile: Profile }) {
   const router = useRouter()
   const [page, setPage] = useState<Page>('checkin')
@@ -39,11 +35,19 @@ export default function AppShell({ profile }: { profile: Profile }) {
 
   return (
     <div style={{ fontFamily: "'Barlow Condensed', 'Arial Narrow', sans-serif", minHeight: '100vh', background: '#f4f4ef', color: BK }}>
+
       {/* ── Header ── */}
-      <div style={{ background: Y, borderBottom: `4px solid ${BK}`, padding: '0 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 60, position: 'sticky', top: 0, zIndex: 100 }}>
+      <div style={{ background: Y, borderBottom: `4px solid ${BK}`, padding: '0 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 64, position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ fontWeight: 900, fontSize: 20, textTransform: 'uppercase', letterSpacing: 1, display: 'flex', alignItems: 'center', gap: 10 }}>
-          <img src="/icons/pete.png" alt="Pete" style={{ height: 44, width: 'auto', filter: 'drop-shadow(1px 1px 2px rgba(0,0,0,0.3))' }}
-            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
+          {/* Pete freigestellt – kein weißer Hintergrund, overflow sichtbar */}
+          <div style={{ position: 'relative', width: 48, height: 64, flexShrink: 0 }}>
+            <img
+              src="/icons/pete.png"
+              alt="Pete"
+              style={{ position: 'absolute', bottom: 0, left: 0, height: 72, width: 'auto', filter: 'drop-shadow(1px 1px 3px rgba(0,0,0,0.25))' }}
+              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+            />
+          </div>
           <span style={{ background: BK, color: Y, borderRadius: 4, padding: '2px 7px', fontSize: 12 }}>1905</span>
           TV Häslach
           <span style={{ fontWeight: 400, fontSize: 14, borderLeft: `2px solid ${BK}`, paddingLeft: 10, marginLeft: 4 }}>
@@ -54,7 +58,7 @@ export default function AppShell({ profile }: { profile: Profile }) {
           onClick={doLogout}
           style={{ background: 'transparent', color: BK, border: `2px solid ${BK}`, borderRadius: 4, padding: '7px 14px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}
         >
-          {icons.logout} Abmelden
+          🚪 Abmelden
         </button>
       </div>
 

@@ -46,12 +46,18 @@ export default function CheckIn({ profile, onCheckedIn }: { profile: Profile; on
 
   if (done) return (
     <div style={{ background: '#fff', border: `2px solid #34c759`, borderRadius: 8, overflow: 'hidden', marginBottom: 16 }}>
-      <div style={{ background: '#34c759', borderBottom: `2px solid ${BK}`, padding: '12px 20px', fontWeight: 900, fontSize: 18, textTransform: 'uppercase', letterSpacing: 1, display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div style={{ background: '#34c759', borderBottom: `2px solid ${BK}`, padding: '12px 20px', fontWeight: 900, fontSize: 18, textTransform: 'uppercase', letterSpacing: 1 }}>
         ✅ Check-in erfolgreich!
       </div>
       <div style={{ padding: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
-          <img src="/icons/pete.png" alt="Pete" style={{ height: 80, width: 'auto' }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
+          {/* Pete freigestellt auf weißem Card-Hintergrund */}
+          <img
+            src="/icons/pete.png"
+            alt="Pete"
+            style={{ height: 80, width: 'auto', filter: 'drop-shadow(1px 2px 4px rgba(0,0,0,0.15))' }}
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+          />
           <p style={{ margin: 0, fontSize: 18, fontWeight: 700, lineHeight: 1.4 }}>
             Viel Spaß beim Training,<br /><span style={{ color: '#34c759' }}>{profile.name}</span>! 🎾
           </p>
@@ -70,9 +76,14 @@ export default function CheckIn({ profile, onCheckedIn }: { profile: Profile; on
 
   return (
     <div>
-      {/* Pete Banner */}
-      <div style={{ background: Y, border: `2px solid ${BK}`, borderRadius: 8, marginBottom: 16, display: 'flex', alignItems: 'flex-end', overflow: 'hidden', minHeight: 90 }}>
-        <img src="/icons/pete.png" alt="Pete" style={{ height: 110, width: 'auto', marginBottom: -2, marginLeft: 12, filter: 'drop-shadow(1px 2px 4px rgba(0,0,0,0.2))' }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
+      {/* Pete Banner – freigestellt, kein overflow:hidden */}
+      <div style={{ background: Y, border: `2px solid ${BK}`, borderRadius: 8, marginBottom: 16, display: 'flex', alignItems: 'flex-end', minHeight: 100, position: 'relative' }}>
+        <img
+          src="/icons/pete.png"
+          alt="Pete"
+          style={{ height: 120, width: 'auto', marginBottom: -2, marginLeft: 12, filter: 'drop-shadow(1px 2px 6px rgba(0,0,0,0.2))', flexShrink: 0 }}
+          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+        />
         <div style={{ padding: '16px 20px' }}>
           <div style={{ fontWeight: 900, fontSize: 22, textTransform: 'uppercase', letterSpacing: 1 }}>Check-in</div>
           <div style={{ fontSize: 14, marginTop: 2 }}>Erfasse deine Ballmaschinen-Nutzung</div>

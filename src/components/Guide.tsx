@@ -17,7 +17,7 @@ export default function Guide() {
 
         {/* Pete + Intro */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20, background: Y, border: `2px solid ${BK}`, borderRadius: 8, padding: '12px 16px' }}>
-          <img src="/icons/pete.png" alt="Pete" style={{ height: 80, width: 'auto', flexShrink: 0 }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
+          <img src="/icons/pete.png" alt="Pete" style={{ height: 80, width: 'auto', flexShrink: 0, filter: 'drop-shadow(1px 2px 4px rgba(0,0,0,0.15))' }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
           <div>
             <div style={{ fontWeight: 900, fontSize: 18, textTransform: 'uppercase' }}>Ballmaschine „Pistol Pete"</div>
             <div style={{ fontSize: 13, marginTop: 4 }}>Lobster Elite Two · TV Häslach e.V. Tennis · V1.1</div>
