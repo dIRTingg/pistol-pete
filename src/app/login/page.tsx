@@ -13,6 +13,8 @@ export default function LoginPage() {
   const [pw, setPw] = useState('')
   const [err, setErr] = useState('')
   const [loading, setLoading] = useState(false)
+  const [resetMode, setResetMode] = useState(false)
+  const [resetSent, setResetSent] = useState(false)
 
   const doLogin = async () => {
     if (!email || !pw) { setErr('Bitte E-Mail und Passwort eingeben.'); return }
@@ -29,6 +31,19 @@ export default function LoginPage() {
     }
   }
 
+
+  const doReset = async () => {
+    if (!email) { setErr('Bitte E-Mail eingeben.'); return }
+    setLoading(true)
+    setErr('')
+    const supabase = createClient()
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/callback?type=recovery`,
+    })
+    setLoading(false)
+    if (error) { setErr('Fehler: ' + error.message) }
+    else { setResetSent(true) }
+  }
   return (
     <div style={{ minHeight: '100vh', background: '#f4f4ef', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
@@ -97,14 +112,44 @@ export default function LoginPage() {
               <button
                 onClick={doLogin}
                 disabled={loading}
-                style={{ background: Y, color: BK, border: `2px solid ${BK}`, borderRadius: 4, padding: '12px 22px', cursor: loading ? 'not-allowed' : 'pointer', fontWeight: 900, fontSize: 16, letterSpacing: 0.5, width: '100%', opacity: loading ? 0.7 : 1 }}
+                style={{ background: Y, color: BK, border: `2px solid ${BK}`, borderRadius: 4, padding: '12px 22px', cursor: loading ? 'not-allowed' : 'pointer', fontWeight: 900, fontSize: 16, letterSpacing: 0.5, width: '100%', opacity: loading ? 0.7 : 1, display: resetMode ? 'none' : 'block' }}
               >
                 {loading ? 'Wird angemeldet...' : '🔐 Anmelden'}
               </button>
-              <p style={{ fontSize: 12, color: '#888', marginTop: 16, textAlign: 'center', lineHeight: 1.6 }}>
-                Kein Zugang? Wende dich an:<br />
-                <strong>Florian Haustein</strong> · WhatsApp: 01742418407
-              </p>
+              {!resetMode ? (
+                <>
+                  <button
+                    onClick={() => { setResetMode(true); setErr('') }}
+                    style={{ background: 'transparent', border: 'none', color: '#555', cursor: 'pointer', fontSize: 13, marginTop: 12, textDecoration: 'underline', display: 'block', width: '100%', textAlign: 'center' }}
+                  >
+                    Passwort vergessen?
+                  </button>
+                  <p style={{ fontSize: 12, color: '#888', marginTop: 12, textAlign: 'center', lineHeight: 1.6 }}>
+                    Kein Zugang? Wende dich an:<br />
+                    <strong>Florian Haustein</strong> · WhatsApp: 01742418407
+                  </p>
+                </>
+              ) : resetSent ? (
+                <div style={{ border: '2px solid #34c759', borderLeft: '5px solid #34c759', background: '#f0fff4', borderRadius: 4, padding: '10px 14px', marginTop: 14, fontSize: 14 }}>
+                  ✅ Mail gesendet! Prüfe dein Postfach und klicke den Link.
+                </div>
+              ) : (
+                <div style={{ marginTop: 14 }}>
+                  <button
+                    onClick={doReset}
+                    disabled={loading}
+                    style={{ background: BK, color: Y, border: `2px solid ${BK}`, borderRadius: 4, padding: '11px 22px', cursor: 'pointer', fontWeight: 900, fontSize: 15, width: '100%', opacity: loading ? 0.7 : 1 }}
+                  >
+                    {loading ? '⏳...' : '📧 Reset-Mail senden'}
+                  </button>
+                  <button
+                    onClick={() => { setResetMode(false); setErr('') }}
+                    style={{ background: 'transparent', border: 'none', color: '#555', cursor: 'pointer', fontSize: 13, marginTop: 8, textDecoration: 'underline', display: 'block', width: '100%', textAlign: 'center' }}
+                  >
+                    ← Zurück zum Login
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

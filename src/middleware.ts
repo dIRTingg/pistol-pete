@@ -30,7 +30,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Öffentliche Routen – kein Login nötig
-  const publicPaths = ['/login']
+  const publicPaths = ['/login', '/auth/callback', '/auth/confirm']
   const isPublic = publicPaths.some(p => pathname.startsWith(p))
 
   if (!user && !isPublic) {
