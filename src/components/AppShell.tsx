@@ -84,8 +84,10 @@ export default function AppShell({ profile }: { profile: Profile }) {
       </div>
 
       {/* ── Footer ── */}
-      <div style={{ textAlign: 'center', padding: '14px 20px', borderTop: `2px solid ${BK}`, background: Y, fontSize: 12, fontWeight: 700 }}>
-        TV Häslach 1905 e.V. · Tennis · „Pistol Pete" · Florian Haustein · 01742418407
+      <div style={{ textAlign: 'center', padding: '14px 20px', borderTop: `2px solid ${BK}`, background: Y, fontSize: 12, fontWeight: 700, lineHeight: 2 }}>
+        TV Häslach 1905 e.V. · Tennis · „Pistol Pete“ · Florian Haustein · 01742418407
+        <br />
+        <a href="/impressum" style={{ color: BK, fontSize: 11, textDecoration: 'underline', fontWeight: 400 }}>Impressum & Datenschutz</a>
       </div>
     </div>
   )
