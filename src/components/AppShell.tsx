@@ -48,8 +48,8 @@ export default function AppShell({ profile }: { profile: Profile }) {
               onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
             />
           </div>
-          <span style={{ background: BK, color: Y, borderRadius: 4, padding: '2px 7px', fontSize: 12 }}>1905</span>
           TV Häslach
+          <span style={{ background: BK, color: Y, borderRadius: 4, padding: '2px 7px', fontSize: 12 }}>1905</span>
           <span style={{ fontWeight: 400, fontSize: 14, borderLeft: `2px solid ${BK}`, paddingLeft: 10, marginLeft: 4 }}>
             Pistol Pete
           </span>

@@ -97,8 +97,8 @@ export default function CheckIn({ profile, onCheckedIn }: { profile: Profile; on
             💡 Nur nach Einweisung nutzen. Zahlencode vom Admin erhalten. Niemals in die laufende Maschine fassen!
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-            <div><label style={lbl}>Datum</label><input style={inp} type="date" value={date} onChange={e => setDate(e.target.value)} /></div>
-            <div><label style={lbl}>Startzeit</label><input style={inp} type="time" value={time} onChange={e => setTime(e.target.value)} /></div>
+            <div style={{ minWidth: 0 }}><label style={lbl}>Datum</label><input style={inp} type="date" value={date} onChange={e => setDate(e.target.value)} /></div>
+            <div style={{ minWidth: 0 }}><label style={lbl}>Startzeit</label><input style={inp} type="time" value={time} onChange={e => setTime(e.target.value)} /></div>
           </div>
           <div style={{ marginBottom: 16 }}>
             <label style={lbl}>Dauer</label>
