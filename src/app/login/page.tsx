@@ -1,6 +1,6 @@
 'use client'
 // src/app/login/page.tsx
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
@@ -15,6 +15,42 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [resetMode, setResetMode] = useState(false)
   const [resetSent, setResetSent] = useState(false)
+  const [showInstall, setShowInstall] = useState(false)
+  const [isIos, setIsIos] = useState(false)
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
+
+  useEffect(() => {
+    // Don't show if already installed as PWA
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+      || (window.navigator as any).standalone === true
+    if (isStandalone) return
+
+    // Detect iOS
+    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent)
+    setIsIos(ios)
+
+    if (ios) {
+      setShowInstall(true)
+    } else {
+      // Android/Chrome: listen for install prompt
+      const handler = (e: Event) => {
+        e.preventDefault()
+        setDeferredPrompt(e)
+        setShowInstall(true)
+      }
+      window.addEventListener('beforeinstallprompt', handler)
+      return () => window.removeEventListener('beforeinstallprompt', handler)
+    }
+  }, [])
+
+  const doInstall = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt()
+      await deferredPrompt.userChoice
+      setDeferredPrompt(null)
+      setShowInstall(false)
+    }
+  }
 
   const doLogin = async () => {
     if (!email || !pw) { setErr('Bitte E-Mail und Passwort eingeben.'); return }
@@ -124,7 +160,36 @@ export default function LoginPage() {
                   >
                     Passwort vergessen?
                   </button>
-                  <p style={{ fontSize: 12, color: '#888', marginTop: 12, textAlign: 'center', lineHeight: 1.6 }}>
+                  {/* PWA Install Banner */}
+          {showInstall && (
+            <div style={{ marginTop: 20, background: '#fffbea', border: `2px solid ${BK}`, borderLeft: `5px solid ${Y}`, borderRadius: 6, padding: '14px 16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div style={{ fontWeight: 900, fontSize: 13, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>
+                  📱 Zum Homescreen hinzufügen
+                </div>
+                <button onClick={() => setShowInstall(false)}
+                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 16, color: '#888', lineHeight: 1, padding: 0 }}>✕</button>
+              </div>
+              {isIos ? (
+                <div style={{ fontSize: 13, lineHeight: 1.7, color: '#333' }}>
+                  <div style={{ marginBottom: 4 }}>So fügst du die App zum Homescreen hinzu:</div>
+                  <div>1. Tippe auf <strong>Teilen</strong> <span style={{ fontSize: 16 }}>⎋</span> (unten in Safari)</div>
+                  <div>2. Wähle <strong>„Zum Home-Bildschirm"</strong></div>
+                  <div>3. Tippe oben rechts auf <strong>„Hinzufügen"</strong></div>
+                </div>
+              ) : (
+                <div style={{ fontSize: 13, lineHeight: 1.7, color: '#333' }}>
+                  <div style={{ marginBottom: 8 }}>Installiere die App direkt auf deinem Homescreen:</div>
+                  <button onClick={doInstall}
+                    style={{ background: Y, color: BK, border: `2px solid ${BK}`, borderRadius: 4, padding: '8px 16px', cursor: 'pointer', fontWeight: 700, fontSize: 13, width: '100%' }}>
+                    ➕ App installieren
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          <p style={{ fontSize: 12, color: '#888', marginTop: 12, textAlign: 'center', lineHeight: 1.6 }}>
                     Kein Zugang? Wende dich an:<br />
                     <strong>Florian Haustein</strong> · WhatsApp: 01742418407
                   </p>
