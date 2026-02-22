@@ -11,7 +11,9 @@ const lbl: React.CSSProperties = { display: 'block', fontWeight: 700, fontSize: 
 
 export default function CheckIn({ profile, onCheckedIn }: { profile: Profile; onCheckedIn: () => void }) {
   const now = new Date()
-  const [date, setDate] = useState(now.toISOString().slice(0, 10))
+  const today = now.toISOString().slice(0, 10)
+  const minDate = `${now.getFullYear()}-01-01`
+  const [date, setDate] = useState(today)
   const [time, setTime] = useState(now.toTimeString().slice(0, 5))
   const [dur, setDur] = useState(60)
   const [note, setNote] = useState('')
@@ -111,7 +113,7 @@ export default function CheckIn({ profile, onCheckedIn }: { profile: Profile; on
           {err && <div style={{ border: '2px solid #ff3b30', borderLeft: '5px solid #ff3b30', background: '#fff0ee', borderRadius: 4, padding: '10px 14px', marginBottom: 14, fontSize: 14 }}>{err}</div>}
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-            <div style={{ minWidth: 0 }}><label style={lbl}>Datum</label><input style={inp} type="date" value={date} onChange={e => setDate(e.target.value)} /></div>
+            <div style={{ minWidth: 0 }}><label style={lbl}>Datum</label><input style={inp} type="date" value={date} min={minDate} max={today} onChange={e => setDate(e.target.value)} /></div>
             <div style={{ minWidth: 0 }}><label style={lbl}>Startzeit</label><input style={inp} type="time" value={time} onChange={e => setTime(e.target.value)} /></div>
           </div>
           <div style={{ marginBottom: 16 }}>
