@@ -67,6 +67,22 @@ export default function CheckIn({ profile, onCheckedIn }: { profile: Profile; on
             <div key={k}><div style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', marginBottom: 2 }}>{k}</div><strong>{v}</strong></div>
           ))}
         </div>
+        {/* Sicherheitshinweise nach Check-in */}
+        <div style={{ background: '#fffbea', border: `2px solid ${BK}`, borderLeft: `5px solid ${Y}`, borderRadius: 6, padding: '14px 16px', marginBottom: 16 }}>
+          <div style={{ fontWeight: 900, fontSize: 13, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>⚠️ Sicherheitshinweise</div>
+          {[
+            'Niemals in die laufende Maschine fassen — Verletzungsgefahr!',
+            'Benutzung nur nach Einweisung. Zahlencode vom Ballmaschinenwart erhalten.',
+            'Bei Regen und Nässe darf die Maschine nicht verwendet werden.',
+            'Nur die vorgesehenen drucklosen Bälle verwenden — keine eigenen beimischen.',
+            'Maschine vorsichtig transportieren. Bei Stufen notfalls tragen.',
+          ].map((hint, i) => (
+            <div key={i} style={{ display: 'flex', gap: 10, fontSize: 13, marginBottom: i < 4 ? 7 : 0, lineHeight: 1.4 }}>
+              <span style={{ flexShrink: 0, marginTop: 1 }}>•</span>
+              <span>{hint}</span>
+            </div>
+          ))}
+        </div>
         <button onClick={() => { setDone(null); setNote('') }} style={{ background: Y, color: BK, border: `2px solid ${BK}`, borderRadius: 4, padding: '11px 22px', cursor: 'pointer', fontWeight: 900, fontSize: 15 }}>
           ➕ Neuer Check-in
         </button>
@@ -93,9 +109,7 @@ export default function CheckIn({ profile, onCheckedIn }: { profile: Profile; on
       <div style={{ background: '#fff', border: `2px solid ${BK}`, borderRadius: 8, overflow: 'hidden' }}>
         <div style={{ padding: 20 }}>
           {err && <div style={{ border: '2px solid #ff3b30', borderLeft: '5px solid #ff3b30', background: '#fff0ee', borderRadius: 4, padding: '10px 14px', marginBottom: 14, fontSize: 14 }}>{err}</div>}
-          <div style={{ border: `2px solid ${BK}`, borderLeft: `5px solid ${BK}`, background: '#f0f4ff', borderRadius: 4, padding: '10px 14px', marginBottom: 14, fontSize: 14 }}>
-            💡 Nur nach Einweisung nutzen. Zahlencode vom Admin erhalten. Niemals in die laufende Maschine fassen!
-          </div>
+
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
             <div style={{ minWidth: 0 }}><label style={lbl}>Datum</label><input style={inp} type="date" value={date} onChange={e => setDate(e.target.value)} /></div>
             <div style={{ minWidth: 0 }}><label style={lbl}>Startzeit</label><input style={inp} type="time" value={time} onChange={e => setTime(e.target.value)} /></div>
