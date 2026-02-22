@@ -73,8 +73,8 @@ export default function CheckIn({ profile, onCheckedIn }: { profile: Profile; on
         <div style={{ background: '#fffbea', border: `2px solid ${BK}`, borderLeft: `5px solid ${Y}`, borderRadius: 6, padding: '14px 16px', marginBottom: 16 }}>
           <div style={{ fontWeight: 900, fontSize: 13, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>⚠️ Sicherheitshinweise</div>
           {[
+            'Benutzung nur nach Einweisung.',
             'Niemals in die laufende Maschine fassen — Verletzungsgefahr!',
-            'Benutzung nur nach Einweisung. Zahlencode vom Ballmaschinenwart erhalten.',
             'Bei Regen und Nässe darf die Maschine nicht verwendet werden.',
             'Nur die vorgesehenen drucklosen Bälle verwenden — keine eigenen beimischen.',
             'Maschine vorsichtig transportieren. Bei Stufen notfalls tragen.',
