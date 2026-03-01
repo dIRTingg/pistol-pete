@@ -63,7 +63,7 @@ export default function AppShell({ profile }: { profile: Profile }) {
           <button
             key={n.id}
             onClick={() => setPage(n.id)}
-            style={{ background: page === n.id ? BK : 'transparent', color: page === n.id ? Y : BK, border: `2px solid ${BK}`, borderRadius: 4, padding: '7px 14px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700, fontSize: 14, letterSpacing: 0.5, display: 'flex', alignItems: 'center', gap: 6 }}
+            style={{ flex: '1 1 0', minWidth: 0, background: page === n.id ? BK : 'transparent', color: page === n.id ? Y : BK, border: `2px solid ${BK}`, borderRadius: 4, padding: '7px 10px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700, fontSize: 14, letterSpacing: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, whiteSpace: 'nowrap' }}
           >
             {n.icon} {n.label}
           </button>
