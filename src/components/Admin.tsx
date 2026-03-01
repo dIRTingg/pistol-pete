@@ -11,7 +11,10 @@ const badge = (bg: string): React.CSSProperties => ({ background: bg, color: (bg
 type CorrWithSession = CorrectionRequest & { sessions: Session | null }
 
 export default function Admin({ refreshKey }: { refreshKey: number }) {
-  const [tab, setTab] = useState<'corrections' | 'sessions' | 'users'>('corrections')
+  const [tab, setTab] = useState<'corrections' | 'sessions' | 'users' | 'settings'>('corrections')
+  const [lockCode, setLockCode] = useState('')
+  const [lockCodeSaving, setLockCodeSaving] = useState(false)
+  const [lockCodeMsg, setLockCodeMsg] = useState('')
   const [corrections, setCorrections] = useState<CorrWithSession[]>([])
   const [sessions, setSessions] = useState<Session[]>([])
   const [users, setUsers] = useState<Profile[]>([])
@@ -25,14 +28,16 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
     const load = async () => {
       setLoading(true)
       const supabase = createClient()
-      const [{ data: corr }, { data: sess }, { data: prof }] = await Promise.all([
+      const [{ data: corr }, { data: sess }, { data: prof }, codeData] = await Promise.all([
         supabase.from('correction_requests').select('*, sessions(*)').order('created_at', { ascending: false }),
         supabase.from('sessions').select('*').order('start_at', { ascending: false }),
         supabase.from('profiles').select('*').order('name'),
+        supabase.from('settings').select('value').eq('id', 'lock_code').single(),
       ])
       setCorrections((corr as CorrWithSession[]) || [])
       setSessions(sess || [])
       setUsers(prof || [])
+      if (codeData?.data) setLockCode(codeData.data.value ?? '')
       setLoading(false)
     }
     load()
@@ -109,6 +114,18 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
     setTick(t => t + 1)
   }
 
+  const saveLockCode = async () => {
+    const clean = lockCode.replace(/\D/g, '').slice(0, 4)
+    if (clean.length !== 4) { setLockCodeMsg('Bitte genau 4 Ziffern eingeben.'); return }
+    setLockCodeSaving(true)
+    setLockCodeMsg('')
+    const supabase = createClient()
+    const { error } = await supabase.from('settings').upsert({ id: 'lock_code', value: clean })
+    setLockCodeSaving(false)
+    setLockCodeMsg(error ? '❌ Fehler: ' + error.message : '✅ Code gespeichert!')
+    setLockCode(clean)
+  }
+
   const pending = corrections.filter(c => c.status === 'pending')
   const resolved = corrections.filter(c => c.status !== 'pending')
   const activeSessions = sessions.filter(s => s.status !== 'cancelled')
@@ -136,6 +153,7 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
         <TabBtn id="corrections" label="Korrekturen" badgeCount={pending.length} />
         <TabBtn id="sessions" label="Buchungen" />
         <TabBtn id="users" label="Nutzer" />
+        <TabBtn id="settings" label="⚙️ Einstellungen" />
       </div>
       <div style={{ padding: 20 }}>
 
@@ -271,6 +289,55 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
             </tbody>
           </table>
         </>}
+
+        {/* ── SETTINGS ── */}
+        {tab === 'settings' && <>
+          <p style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, fontSize: 13, margin: '0 0 20px' }}>
+            🔐 Kettenschloss – Zahlencode
+          </p>
+
+          {/* Code-Vorschau */}
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ fontSize: 12, color: '#888', marginBottom: 10, textTransform: 'uppercase', letterSpacing: 0.5 }}>Aktueller Code</div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {(lockCode || '----').split('').map((digit, i) => (
+                <div key={i} style={{
+                  background: digit === '-' ? '#ccc' : BK, borderRadius: 6, width: 52, height: 64,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.25)',
+                }}>
+                  {digit === '0'
+                    ? <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#fff', boxShadow: '0 0 0 2px #555' }} />
+                    : digit === '-'
+                    ? <span style={{ color: '#fff', fontSize: 24, fontWeight: 900, fontFamily: 'monospace' }}>?</span>
+                    : <span style={{ color: '#fff', fontSize: 30, fontWeight: 900, fontFamily: 'monospace', lineHeight: 1 }}>{digit}</span>
+                  }
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Code-Eingabe */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <input
+              type="text" inputMode="numeric" maxLength={4}
+              value={lockCode}
+              onChange={e => setLockCode(e.target.value.replace(/\D/g, '').slice(0, 4))}
+              placeholder="0000"
+              style={{ border: `2px solid ${BK}`, borderRadius: 4, padding: '10px 16px', fontSize: 28, fontFamily: 'monospace', fontWeight: 900, width: 120, textAlign: 'center', letterSpacing: 8 }}
+            />
+            <button onClick={saveLockCode} disabled={lockCodeSaving}
+              style={{ background: Y, color: BK, border: `2px solid ${BK}`, borderRadius: 4, padding: '11px 22px', cursor: 'pointer', fontWeight: 900, fontSize: 15, fontFamily: 'inherit' }}>
+              {lockCodeSaving ? '⏳ Speichern...' : '💾 Speichern'}
+            </button>
+          </div>
+          {lockCodeMsg && <p style={{ marginTop: 10, fontSize: 14, fontWeight: 700 }}>{lockCodeMsg}</p>}
+          <p style={{ marginTop: 16, fontSize: 13, color: '#888', lineHeight: 1.6 }}>
+            Der Code wird Mitgliedern nach erfolgreichem Check-in angezeigt.<br />
+            Bitte jährlich aktualisieren.
+          </p>
+        </>}
+
       </div>
     </div>
   )

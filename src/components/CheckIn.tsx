@@ -1,6 +1,6 @@
 'use client'
 // src/components/CheckIn.tsx
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { calcCost, formatDate, formatTime } from '@/lib/helpers'
 import type { Profile } from '@/lib/supabase/types'
@@ -46,6 +46,17 @@ export default function CheckIn({ profile, onCheckedIn }: { profile: Profile; on
     }
   }
 
+  const [lockCode, setLockCode] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchCode = async () => {
+      const supabase = createClient()
+      const { data } = await supabase.from('settings').select('value').eq('id', 'lock_code').single()
+      if (data) setLockCode(data.value)
+    }
+    fetchCode()
+  }, [])
+
   if (done) return (
     <div style={{ background: '#fff', border: `2px solid #34c759`, borderRadius: 8, overflow: 'hidden', marginBottom: 16 }}>
       <div style={{ background: '#34c759', borderBottom: `2px solid ${BK}`, padding: '12px 20px', fontWeight: 900, fontSize: 18, textTransform: 'uppercase', letterSpacing: 1 }}>
@@ -69,7 +80,26 @@ export default function CheckIn({ profile, onCheckedIn }: { profile: Profile; on
             <div key={k}><div style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', marginBottom: 2 }}>{k}</div><strong>{v}</strong></div>
           ))}
         </div>
-        {/* Sicherheitshinweise nach Check-in */}
+        {/* Schloss-Code */}
+        {lockCode && (
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 12, color: '#888', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8, fontWeight: 700 }}>🔐 Zahlencode Kettenschloss</div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {lockCode.split('').map((digit, i) => (
+                <div key={i} style={{
+                  background: BK, borderRadius: 6, width: 52, height: 64,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+                }}>
+                  {digit === '0'
+                    ? <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#fff', boxShadow: '0 0 0 2px #555' }} />
+                    : <span style={{ color: '#fff', fontSize: 30, fontWeight: 900, fontFamily: 'monospace', lineHeight: 1 }}>{digit}</span>
+                  }
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         <div style={{ background: '#fffbea', border: `2px solid ${BK}`, borderLeft: `5px solid ${Y}`, borderRadius: 6, padding: '14px 16px', marginBottom: 16 }}>
           <div style={{ fontWeight: 900, fontSize: 13, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>⚠️ Sicherheitshinweise</div>
           {[
