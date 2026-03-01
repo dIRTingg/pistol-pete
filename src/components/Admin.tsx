@@ -133,10 +133,10 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
 
   const TabBtn = ({ id, label, badgeCount = 0 }: { id: typeof tab; label: string; badgeCount?: number }) => (
     <button onClick={() => setTab(id)} style={{
-      padding: '8px 18px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700, fontSize: 14,
+      flex: '1 1 0', padding: '8px 4px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700, fontSize: 14,
       border: `2px solid ${BK}`, borderBottom: tab === id ? '2px solid #fff' : `2px solid ${BK}`,
-      background: tab === id ? '#fff' : Y, borderRadius: '4px 4px 0 0', marginRight: 4,
-      position: 'relative', bottom: -2, color: BK,
+      background: tab === id ? '#fff' : Y, borderRadius: '4px 4px 0 0',
+      position: 'relative', bottom: -2, color: BK, textAlign: 'center', whiteSpace: 'nowrap',
     }}>
       {label} {badgeCount > 0 && <span style={{ background: '#ff3b30', color: '#fff', borderRadius: 10, padding: '1px 6px', marginLeft: 4, fontSize: 11 }}>{badgeCount}</span>}
     </button>
@@ -149,7 +149,7 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
       <div style={{ background: Y, borderBottom: `2px solid ${BK}`, padding: '12px 20px', fontWeight: 900, fontSize: 18, textTransform: 'uppercase', letterSpacing: 1 }}>
         🛡️ Admin-Bereich
       </div>
-      <div style={{ borderBottom: `2px solid ${BK}`, padding: '0 16px', background: Y }}>
+      <div style={{ borderBottom: `2px solid ${BK}`, padding: '0 16px', background: Y, display: 'flex' }}>
         <TabBtn id="corrections" label="Korrekturen" badgeCount={pending.length} />
         <TabBtn id="sessions" label="Buchungen" />
         <TabBtn id="users" label="Nutzer" />
