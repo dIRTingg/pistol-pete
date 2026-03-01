@@ -133,7 +133,7 @@ export default function LoginPage() {
                   autoComplete="email"
                 />
               </div>
-              <div style={{ marginBottom: 16 }}>
+              {!resetMode && <div style={{ marginBottom: 16 }}>
                 <label style={{ display: 'block', fontWeight: 700, fontSize: 13, marginBottom: 5, textTransform: 'uppercase', letterSpacing: 0.5 }}>Passwort</label>
                 <input
                   style={{ width: '100%', border: `2px solid ${BK}`, borderRadius: 4, padding: '10px 12px', fontSize: 16, background: '#fff', boxSizing: 'border-box' as const }}
@@ -144,7 +144,7 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   autoComplete="current-password"
                 />
-              </div>
+              </div>}
               <button
                 onClick={doLogin}
                 disabled={loading}
@@ -195,8 +195,9 @@ export default function LoginPage() {
                   </p>
                 </>
               ) : resetSent ? (
-                <div style={{ border: '2px solid #34c759', borderLeft: '5px solid #34c759', background: '#f0fff4', borderRadius: 4, padding: '10px 14px', marginTop: 14, fontSize: 14 }}>
-                  ✅ Mail gesendet! Prüfe dein Postfach und klicke den Link.
+                <div style={{ border: '2px solid #34c759', borderLeft: '5px solid #34c759', background: '#f0fff4', borderRadius: 4, padding: '12px 14px', marginTop: 14, fontSize: 14, lineHeight: 1.6 }}>
+                  ✅ <strong>Mail gesendet!</strong> Prüfe dein Postfach und klicke den Link.<br />
+                  <span style={{ color: '#555', fontSize: 13 }}>📂 Nichts angekommen? Wirf auch einen Blick in deinen <strong>Spam-Ordner</strong> — die Mail kommt von <strong>Supabase Auth</strong>.</span>
                 </div>
               ) : (
                 <div style={{ marginTop: 14 }}>
