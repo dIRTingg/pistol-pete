@@ -263,7 +263,7 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
             <tbody>
               {users.map(u => (
                 <tr key={u.id}>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #eee' }}>{u.name}</td>
+                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #eee' }}>{[u.first_name, u.last_name].filter(Boolean).join(' ') || u.name}</td>
                   <td style={{ padding: '10px 12px', borderBottom: '1px solid #eee' }}><span style={badge(u.role === 'admin' ? BK : '#34c759')}>{u.role === 'admin' ? 'Admin' : 'Mitglied'}</span></td>
                   <td style={{ padding: '10px 12px', borderBottom: '1px solid #eee', fontSize: 12, color: '#888' }}>{formatDate(u.created_at)}</td>
                 </tr>

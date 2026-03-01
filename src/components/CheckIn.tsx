@@ -29,7 +29,7 @@ export default function CheckIn({ profile, onCheckedIn }: { profile: Profile; on
     const startAt = new Date(`${date}T${time}:00`).toISOString()
     const { error } = await supabase.from('sessions').insert({
       user_id: profile.id,
-      user_name: profile.name,
+      user_name: [profile.first_name, profile.last_name].filter(Boolean).join(' ') || profile.name,
       start_at: startAt,
       duration_min: dur,
       cost,
@@ -61,7 +61,7 @@ export default function CheckIn({ profile, onCheckedIn }: { profile: Profile; on
             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
           />
           <p style={{ margin: 0, fontSize: 18, fontWeight: 700, lineHeight: 1.4 }}>
-            Viel Spaß beim Training,<br /><span style={{ color: '#34c759' }}>{profile.name}</span>! 🎾
+            Viel Spaß beim Training,<br /><span style={{ color: '#34c759' }}>{profile.first_name ?? profile.name}</span>! 🎾
           </p>
         </div>
         <div style={{ background: '#f8f8f8', border: '1px solid #ddd', borderRadius: 6, padding: 16, marginBottom: 16, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -73,8 +73,8 @@ export default function CheckIn({ profile, onCheckedIn }: { profile: Profile; on
         <div style={{ background: '#fffbea', border: `2px solid ${BK}`, borderLeft: `5px solid ${Y}`, borderRadius: 6, padding: '14px 16px', marginBottom: 16 }}>
           <div style={{ fontWeight: 900, fontSize: 13, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>⚠️ Sicherheitshinweise</div>
           {[
-            'Benutzung nur nach Einweisung.',
             'Niemals in die laufende Maschine fassen — Verletzungsgefahr!',
+            'Benutzung nur nach Einweisung. Zahlencode vom Ballmaschinenwart erhalten.',
             'Bei Regen und Nässe darf die Maschine nicht verwendet werden.',
             'Nur die vorgesehenen drucklosen Bälle verwenden — keine eigenen beimischen.',
             'Maschine vorsichtig transportieren. Bei Stufen notfalls tragen.',
