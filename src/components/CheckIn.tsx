@@ -108,6 +108,7 @@ export default function CheckIn({ profile, onCheckedIn }: { profile: Profile; on
             'Bei Regen und Nässe darf die Maschine nicht verwendet werden.',
             'Nur die vorgesehenen drucklosen Bälle verwenden — keine eigenen beimischen.',
             'Maschine vorsichtig transportieren. Bei Stufen notfalls tragen.',
+            '🔒 Nach der Benutzung das Kettenschloss wieder anbringen!',
           ].map((hint, i) => (
             <div key={i} style={{ display: 'flex', gap: 10, fontSize: 13, marginBottom: i < 4 ? 7 : 0, lineHeight: 1.4 }}>
               <span style={{ flexShrink: 0, marginTop: 1 }}>•</span>
@@ -141,6 +142,10 @@ export default function CheckIn({ profile, onCheckedIn }: { profile: Profile; on
       <div style={{ background: '#fff', border: `2px solid ${BK}`, borderRadius: 8, overflow: 'hidden' }}>
         <div style={{ padding: 20 }}>
           {err && <div style={{ border: '2px solid #ff3b30', borderLeft: '5px solid #ff3b30', background: '#fff0ee', borderRadius: 4, padding: '10px 14px', marginBottom: 14, fontSize: 14 }}>{err}</div>}
+
+          <div style={{ border: `2px solid ${BK}`, borderLeft: `5px solid ${Y}`, background: '#fffbea', borderRadius: 4, padding: '10px 14px', marginBottom: 14, fontSize: 14 }}>
+            🔐 Der Zahlencode für das Kettenschloss wird nach erfolgreichem Check-in angezeigt.
+          </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
             <div style={{ minWidth: 0 }}><label style={lbl}>Datum</label><input style={inp} type="date" value={date} min={minDate} max={today} onChange={e => setDate(e.target.value)} /></div>

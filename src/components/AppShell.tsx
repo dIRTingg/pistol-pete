@@ -72,7 +72,7 @@ export default function AppShell({ profile }: { profile: Profile }) {
 
       {/* ── Welcome bar ── */}
       <div style={{ background: Y, borderBottom: `2px solid ${BK}`, padding: '6px 20px', fontSize: 13, fontWeight: 700 }}>
-        👋 Hallo, {profile.first_name ?? profile.name}
+        👋 Hallo {profile.first_name ?? profile.name}!
       </div>
 
       {/* ── Content ── */}
