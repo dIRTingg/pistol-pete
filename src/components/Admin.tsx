@@ -182,12 +182,18 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
           })}
           {resolved.length > 0 && <>
             <p style={{ fontWeight: 700, textTransform: 'uppercase', fontSize: 12, color: '#888', margin: '20px 0 10px' }}>Erledigte Anfragen</p>
-            {resolved.map(c => (
-              <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid #ddd', borderRadius: 6, padding: '10px 14px', marginBottom: 8 }}>
-                <span style={{ fontSize: 13 }}>{c.user_name} — {c.requested_duration === 0 ? 'Stornierung' : `${c.requested_duration} Min.`}</span>
-                <span style={badge(c.status === 'approved' ? '#34c759' : '#ff3b30')}>{c.status === 'approved' ? 'Genehmigt' : 'Abgelehnt'}</span>
-              </div>
-            ))}
+            {resolved.map(c => {
+              const s = c.sessions
+              return (
+                <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid #ddd', borderRadius: 6, padding: '10px 14px', marginBottom: 8 }}>
+                  <span style={{ fontSize: 13 }}>
+                    {c.user_name} — {c.requested_duration === 0 ? 'Stornierung' : `${c.requested_duration} Min.`}
+                    {s && <span style={{ color: '#888', marginLeft: 8 }}>· Buchung vom {formatDate(s.start_at)}</span>}
+                  </span>
+                  <span style={badge(c.status === 'approved' ? '#34c759' : '#ff3b30')}>{c.status === 'approved' ? 'Genehmigt' : 'Abgelehnt'}</span>
+                </div>
+              )
+            })}
           </>}
         </>}
 
