@@ -20,6 +20,9 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
   const [invRole,  setInvRole]  = useState('member')
   const [invLoading, setInvLoading] = useState(false)
   const [invMsg,   setInvMsg]   = useState('')
+  // Per-row state for registrations tab
+  const [rowLoading, setRowLoading] = useState<string | null>(null)
+  const [rowMsg,     setRowMsg]     = useState<Record<string, string>>({})
   // Edit user
   const [editId,    setEditId]    = useState<string | null>(null)
   const [editFirst, setEditFirst] = useState('')
@@ -146,6 +149,27 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
     setTick(t => t + 1)
   }
 
+  const doInviteRow = async (r: any) => {
+    setRowLoading(r.id)
+    setRowMsg(m => ({ ...m, [r.id]: '' }))
+    const res = await fetch('/api/admin/invite', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ first_name: r.first_name, last_name: r.last_name, email: r.email, role: 'member' }),
+    })
+    const data = await res.json()
+    setRowLoading(null)
+    if (!res.ok) {
+      setRowMsg(m => ({ ...m, [r.id]: '❌ ' + (data.error ?? 'Fehler') }))
+      return
+    }
+    // Status auf invited setzen
+    const supabase = createClient()
+    await supabase.from('registration_requests').update({ status: 'invited' }).eq('id', r.id)
+    setRowMsg(m => ({ ...m, [r.id]: '✅ Einladung gesendet!' }))
+    setTick(t => t + 1)
+  }
+
   const doEdit = async () => {
     if (!editId) return
     setEditLoading(true); setEditMsg('')
@@ -228,24 +252,32 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
                   <div style={{ fontSize: 14, color: '#555', marginTop: 2 }}>{r.email}</div>
                   <div style={{ fontSize: 12, color: '#999', marginTop: 4 }}>Eingegangen: {formatDate(r.created_at)}</div>
                 </div>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button
-                    onClick={() => doInvite(r.first_name, r.last_name, r.email, 'member', () => updateRegistration(r.id, 'invited'))}
-                    style={{ background: '#34c759', color: '#fff', border: `2px solid #34c759`, borderRadius: 4, padding: '8px 14px', cursor: 'pointer', fontWeight: 700, fontSize: 13, fontFamily: 'inherit' }}
-                  >
-                    ✓ Einladen & freischalten
-                  </button>
-                  <button
-                    onClick={() => updateRegistration(r.id, 'rejected')}
-                    style={{ background: 'transparent', color: '#ff3b30', border: `2px solid #ff3b30`, borderRadius: 4, padding: '8px 14px', cursor: 'pointer', fontWeight: 700, fontSize: 13, fontFamily: 'inherit' }}
-                  >
-                    ✕ Ablehnen
-                  </button>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' as const }}>
+                  {rowMsg[r.id]
+                    ? <span style={{ fontSize: 13, fontWeight: 700 }}>{rowMsg[r.id]}</span>
+                    : <>
+                        <button
+                          onClick={() => doInviteRow(r)}
+                          disabled={rowLoading === r.id}
+                          style={{ background: '#34c759', color: '#fff', border: `2px solid #34c759`, borderRadius: 4, padding: '8px 14px', cursor: 'pointer', fontWeight: 700, fontSize: 13, fontFamily: 'inherit' }}
+                        >
+                          {rowLoading === r.id ? '⏳...' : '✓ Einladen & freischalten'}
+                        </button>
+                        <button
+                          onClick={() => updateRegistration(r.id, 'rejected')}
+                          style={{ background: 'transparent', color: '#ff3b30', border: `2px solid #ff3b30`, borderRadius: 4, padding: '8px 14px', cursor: 'pointer', fontWeight: 700, fontSize: 13, fontFamily: 'inherit' }}
+                        >
+                          ✕ Ablehnen
+                        </button>
+                      </>
+                  }
                 </div>
               </div>
-              <div style={{ marginTop: 10, fontSize: 12, color: '#888', background: '#fff', border: '1px solid #eee', borderRadius: 4, padding: '6px 10px' }}>
-                📋 Nach dem Einladen erhält die Person automatisch eine E-Mail zur Passwort-Einrichtung.
-              </div>
+              {!rowMsg[r.id] && (
+                <div style={{ marginTop: 10, fontSize: 12, color: '#888', background: '#fff', border: '1px solid #eee', borderRadius: 4, padding: '6px 10px' }}>
+                  📋 Nach dem Einladen erhält die Person automatisch eine E-Mail zur Passwort-Einrichtung.
+                </div>
+              )}
             </div>
           ))}
 
