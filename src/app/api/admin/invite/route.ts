@@ -34,18 +34,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Diese E-Mail-Adresse ist bereits registriert.' }, { status: 409 })
   }
 
-  // 5. Invite senden → Supabase erstellt User + sendet E-Mail
+  // 5. Invite senden — Namen und Rolle als Metadaten mitgeben → Trigger übernimmt sie
   const { data: inviteData, error: inviteError } = await adminClient.auth.admin.inviteUserByEmail(
     email.toLowerCase(),
-    { redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://pistol-pete.vercel.app'}/auth/callback?type=invite` }
+    {
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://pistol-pete.vercel.app'}/auth/callback?type=invite`,
+      data: {
+        first_name: first_name.trim(),
+        last_name: last_name.trim(),
+        name: `${first_name.trim()} ${last_name.trim()}`,
+        role,
+      }
+    }
   )
   if (inviteError) {
     return NextResponse.json({ error: inviteError.message }, { status: 500 })
   }
 
-  // 6. Profil mit Namen und Rolle befüllen
+  // 6. Sicherheits-Fallback: falls Trigger das Profil noch nicht angelegt hat
   const newUserId = inviteData.user.id
-  await adminClient.from('profiles').upsert({
+  const { error: insertError } = await adminClient.from('profiles').insert({
     id: newUserId,
     email: email.toLowerCase(),
     first_name: first_name.trim(),
@@ -53,6 +61,15 @@ export async function POST(req: NextRequest) {
     name: `${first_name.trim()} ${last_name.trim()}`,
     role,
   })
+  if (insertError) {
+    // Profil existiert bereits durch Trigger — Namen sicherstellen
+    await adminClient.from('profiles').update({
+      first_name: first_name.trim(),
+      last_name: last_name.trim(),
+      name: `${first_name.trim()} ${last_name.trim()}`,
+      role,
+    }).eq('id', newUserId)
+  }
 
   return NextResponse.json({ ok: true })
 }
