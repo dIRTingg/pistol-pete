@@ -53,7 +53,7 @@ export default function Mitmachen() {
               <strong>Pistol Pete</strong> ist unsere <strong>Lobster Elite Two</strong> — eine professionelle Ballmaschine, die dir Bälle in einstellbarer Geschwindigkeit, Höhe und mit Topspin oder Slice zuspielt.
             </p>
             <p style={{ margin: 0 }}>
-              Perfekt für gezieltes Einzel-Training, Aufschlag-Übungen oder um Schlagtechnik zu verbessern — ganz ohne Partner, ganz nach deinem Tempo.
+              Perfekt für gezieltes Training, um Schlagtechnik und Konstanz zu verbessern — ganz ohne Trainer, alleine oder mit Partner, ganz nach deinem Tempo.
             </p>
           </div>
         </div>
@@ -64,9 +64,9 @@ export default function Mitmachen() {
             ✅ So einfach geht's
           </div>
           <div style={{ padding: 20 }}>
-            <Step num="1" title="Anmelden & Einweisung" desc="Füll das Formular aus und vereinbare eine kurze Einweisung (ca. 15 Min.) mit dem Ballmaschinenwart. Einmalig — dann bist du dabei." />
+            <Step num="1" title="Anmelden & Einweisung" desc="Füll das Formular aus, lies die Bedienungshinweise druch und akzeptiere die Nutzungsbedingungen. Einmalig — dann bist du dabei. Bei Bedarf steht unser Ballmaschinenwart auch gerne für eine Einweisung bereit." />
             <Step num="2" title="App öffnen & einchecken" desc="Öffne die Pistol Pete App, trag Datum und Dauer ein, und checke ein. Der Zahlencode für das Schloss erscheint automatisch." />
-            <Step num="3" title="Loslegen" desc="Maschine aufbauen, Bälle einfüllen, Training starten. Nach der Nutzung Maschine zurückstellen und Schloss sichern." />
+            <Step num="3" title="Loslegen" desc="Maschine auf den Platztransportieren und ausrichten, Bälle einfüllen, Training starten. Nach der Nutzung Maschine zurückstellen und Schloss sichern." />
           </div>
         </div>
 

@@ -13,6 +13,20 @@ type CorrWithSession = CorrectionRequest & { sessions: Session | null }
 export default function Admin({ refreshKey }: { refreshKey: number }) {
   const [tab, setTab] = useState<'corrections' | 'sessions' | 'users' | 'settings' | 'registrations'>('corrections')
   const [registrations, setRegistrations] = useState<any[]>([])
+  // Invite form
+  const [invFirst, setInvFirst] = useState('')
+  const [invLast,  setInvLast]  = useState('')
+  const [invEmail, setInvEmail] = useState('')
+  const [invRole,  setInvRole]  = useState('member')
+  const [invLoading, setInvLoading] = useState(false)
+  const [invMsg,   setInvMsg]   = useState('')
+  // Edit user
+  const [editId,    setEditId]    = useState<string | null>(null)
+  const [editFirst, setEditFirst] = useState('')
+  const [editLast,  setEditLast]  = useState('')
+  const [editRole,  setEditRole]  = useState('')
+  const [editLoading, setEditLoading] = useState(false)
+  const [editMsg,   setEditMsg]   = useState('')
   const [lockCode, setLockCode] = useState('')
   const [lockCodeSaving, setLockCodeSaving] = useState(false)
   const [lockCodeMsg, setLockCodeMsg] = useState('')
@@ -117,6 +131,37 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
     setTick(t => t + 1)
   }
 
+  const doInvite = async (firstName: string, lastName: string, email: string, role: string, onDone: () => void) => {
+    setInvLoading(true); setInvMsg('')
+    const res = await fetch('/api/admin/invite', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ first_name: firstName, last_name: lastName, email, role }),
+    })
+    const data = await res.json()
+    setInvLoading(false)
+    if (!res.ok) { setInvMsg('❌ ' + (data.error ?? 'Fehler')); return }
+    setInvMsg('✅ Einladung gesendet!')
+    onDone()
+    setTick(t => t + 1)
+  }
+
+  const doEdit = async () => {
+    if (!editId) return
+    setEditLoading(true); setEditMsg('')
+    const res = await fetch('/api/admin/invite', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: editId, first_name: editFirst, last_name: editLast, role: editRole }),
+    })
+    const data = await res.json()
+    setEditLoading(false)
+    if (!res.ok) { setEditMsg('❌ ' + (data.error ?? 'Fehler')); return }
+    setEditMsg('✅ Gespeichert!')
+    setTick(t => t + 1)
+    setTimeout(() => { setEditId(null); setEditMsg('') }, 1200)
+  }
+
   const saveLockCode = async () => {
     const clean = lockCode.replace(/\D/g, '').slice(0, 4)
     if (clean.length !== 4) { setLockCodeMsg('Bitte genau 4 Ziffern eingeben.'); return }
@@ -185,10 +230,10 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <button
-                    onClick={() => updateRegistration(r.id, 'invited')}
+                    onClick={() => doInvite(r.first_name, r.last_name, r.email, 'member', () => updateRegistration(r.id, 'invited'))}
                     style={{ background: '#34c759', color: '#fff', border: `2px solid #34c759`, borderRadius: 4, padding: '8px 14px', cursor: 'pointer', fontWeight: 700, fontSize: 13, fontFamily: 'inherit' }}
                   >
-                    ✓ Eingeladen
+                    ✓ Einladen & freischalten
                   </button>
                   <button
                     onClick={() => updateRegistration(r.id, 'rejected')}
@@ -199,7 +244,7 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
                 </div>
               </div>
               <div style={{ marginTop: 10, fontSize: 12, color: '#888', background: '#fff', border: '1px solid #eee', borderRadius: 4, padding: '6px 10px' }}>
-                📋 Nächster Schritt: Person in Supabase einladen (Authentication → Invite user) und Einweisung vereinbaren.
+                📋 Nach dem Einladen erhält die Person automatisch eine E-Mail zur Passwort-Einrichtung.
               </div>
             </div>
           ))}
@@ -335,26 +380,99 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
 
         {/* ── USERS ── */}
         {tab === 'users' && <>
-          <div style={{ background: '#f0f4ff', border: `2px solid ${BK}`, borderLeft: `5px solid ${BK}`, borderRadius: 6, padding: 16, marginBottom: 20, fontSize: 14 }}>
-            <strong>Neue Nutzer anlegen:</strong> Supabase Dashboard → Authentication → Users → <em>Create new user</em><br />
-            Danach Rolle setzen: Table Editor → profiles → Zeile anklicken → role auf <code>member</code> oder <code>admin</code> setzen.
+
+          {/* ── Neuen Nutzer einladen ── */}
+          <p style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, fontSize: 13, margin: '0 0 14px' }}>➕ Neuen Nutzer einladen</p>
+          <div style={{ background: '#fffbea', border: `2px solid ${BK}`, borderLeft: `5px solid ${Y}`, borderRadius: 6, padding: 16, marginBottom: 24 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+              <div>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', marginBottom: 4 }}>Vorname</label>
+                <input value={invFirst} onChange={e => setInvFirst(e.target.value)} placeholder="Max"
+                  style={{ width: '100%', border: `2px solid ${BK}`, borderRadius: 4, padding: '8px 10px', fontSize: 14, boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', marginBottom: 4 }}>Nachname</label>
+                <input value={invLast} onChange={e => setInvLast(e.target.value)} placeholder="Mustermann"
+                  style={{ width: '100%', border: `2px solid ${BK}`, borderRadius: 4, padding: '8px 10px', fontSize: 14, boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 10, marginBottom: 10 }}>
+              <div>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', marginBottom: 4 }}>E-Mail</label>
+                <input value={invEmail} onChange={e => setInvEmail(e.target.value)} placeholder="max@beispiel.de" type="email"
+                  style={{ width: '100%', border: `2px solid ${BK}`, borderRadius: 4, padding: '8px 10px', fontSize: 14, boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', marginBottom: 4 }}>Rolle</label>
+                <select value={invRole} onChange={e => setInvRole(e.target.value)}
+                  style={{ border: `2px solid ${BK}`, borderRadius: 4, padding: '8px 10px', fontSize: 14, fontFamily: 'inherit', background: '#fff' }}>
+                  <option value="member">Mitglied</option>
+                  <option value="ballmaschine">Ballmaschine</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <button onClick={() => doInvite(invFirst, invLast, invEmail, invRole, () => { setInvFirst(''); setInvLast(''); setInvEmail(''); setInvRole('member') })}
+                disabled={invLoading}
+                style={{ background: Y, color: BK, border: `2px solid ${BK}`, borderRadius: 4, padding: '9px 18px', cursor: 'pointer', fontWeight: 900, fontSize: 14, fontFamily: 'inherit' }}>
+                {invLoading ? '⏳...' : '📧 Einladung senden'}
+              </button>
+              {invMsg && <span style={{ fontSize: 13, fontWeight: 700 }}>{invMsg}</span>}
+            </div>
           </div>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
-            <thead><tr>
-              {['Name', 'Rolle', 'Seit'].map(h => (
-                <th key={h} style={{ background: BK, color: Y, padding: '8px 12px', textAlign: 'left', fontWeight: 700, fontSize: 12, textTransform: 'uppercase' }}>{h}</th>
-              ))}
-            </tr></thead>
-            <tbody>
-              {users.map(u => (
-                <tr key={u.id}>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #eee' }}>{[u.first_name, u.last_name].filter(Boolean).join(' ') || u.name}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #eee' }}><span style={badge(u.role === 'admin' ? BK : '#34c759')}>{u.role === 'admin' ? 'Admin' : 'Mitglied'}</span></td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #eee', fontSize: 12, color: '#888' }}>{formatDate(u.created_at)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+
+          {/* ── Nutzerliste ── */}
+          <p style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, fontSize: 13, margin: '0 0 12px' }}>Registrierte Nutzer ({users.length})</p>
+          {users.map(u => (
+            <div key={u.id} style={{ border: '1px solid #ddd', borderRadius: 6, marginBottom: 8, overflow: 'hidden' }}>
+              {editId === u.id ? (
+                // Edit-Modus
+                <div style={{ padding: '12px 14px', background: '#fffbea' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+                    <input value={editFirst} onChange={e => setEditFirst(e.target.value)} placeholder="Vorname"
+                      style={{ border: `2px solid ${BK}`, borderRadius: 4, padding: '7px 10px', fontSize: 14, fontFamily: 'inherit' }} />
+                    <input value={editLast} onChange={e => setEditLast(e.target.value)} placeholder="Nachname"
+                      style={{ border: `2px solid ${BK}`, borderRadius: 4, padding: '7px 10px', fontSize: 14, fontFamily: 'inherit' }} />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' as const }}>
+                    <select value={editRole} onChange={e => setEditRole(e.target.value)}
+                      style={{ border: `2px solid ${BK}`, borderRadius: 4, padding: '7px 10px', fontSize: 14, fontFamily: 'inherit', background: '#fff' }}>
+                      <option value="member">Mitglied</option>
+                      <option value="ballmaschine">Ballmaschine</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                    <button onClick={doEdit} disabled={editLoading}
+                      style={{ background: '#34c759', color: '#fff', border: '2px solid #34c759', borderRadius: 4, padding: '7px 14px', cursor: 'pointer', fontWeight: 700, fontSize: 13, fontFamily: 'inherit' }}>
+                      {editLoading ? '⏳' : '✓ Speichern'}
+                    </button>
+                    <button onClick={() => { setEditId(null); setEditMsg('') }}
+                      style={{ background: 'transparent', color: '#888', border: '1px solid #ddd', borderRadius: 4, padding: '7px 12px', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit' }}>
+                      Abbrechen
+                    </button>
+                    {editMsg && <span style={{ fontSize: 13, fontWeight: 700 }}>{editMsg}</span>}
+                  </div>
+                </div>
+              ) : (
+                // Anzeigemodus
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px' }}>
+                  <div>
+                    <span style={{ fontWeight: 700, fontSize: 14 }}>{[u.first_name, u.last_name].filter(Boolean).join(' ') || u.name || '–'}</span>
+                    <span style={{ fontSize: 12, color: '#888', marginLeft: 8 }}>{u.email}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={badge(u.role === 'admin' ? BK : u.role === 'ballmaschine' ? '#1a56db' : '#34c759')}>
+                      {u.role === 'admin' ? 'Admin' : u.role === 'ballmaschine' ? 'Ballmaschine' : 'Mitglied'}
+                    </span>
+                    <button onClick={() => { setEditId(u.id); setEditFirst(u.first_name ?? ''); setEditLast(u.last_name ?? ''); setEditRole(u.role ?? 'member'); setEditMsg('') }}
+                      style={{ background: 'transparent', border: `1px solid #ddd`, borderRadius: 4, padding: '5px 10px', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#555' }}>
+                      ✏️ Bearbeiten
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
         </>}
 
         {/* ── SETTINGS ── */}
