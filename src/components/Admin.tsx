@@ -407,7 +407,6 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
                 <select value={invRole} onChange={e => setInvRole(e.target.value)}
                   style={{ border: `2px solid ${BK}`, borderRadius: 4, padding: '8px 10px', fontSize: 14, fontFamily: 'inherit', background: '#fff' }}>
                   <option value="member">Mitglied</option>
-                  <option value="ballmaschine">Ballmaschine</option>
                   <option value="admin">Admin</option>
                 </select>
               </div>
@@ -439,7 +438,6 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
                     <select value={editRole} onChange={e => setEditRole(e.target.value)}
                       style={{ border: `2px solid ${BK}`, borderRadius: 4, padding: '7px 10px', fontSize: 14, fontFamily: 'inherit', background: '#fff' }}>
                       <option value="member">Mitglied</option>
-                      <option value="ballmaschine">Ballmaschine</option>
                       <option value="admin">Admin</option>
                     </select>
                     <button onClick={doEdit} disabled={editLoading}
@@ -461,8 +459,8 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
                     <span style={{ fontSize: 12, color: '#888', marginLeft: 8 }}>{u.email}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={badge(u.role === 'admin' ? BK : u.role === 'ballmaschine' ? '#1a56db' : '#34c759')}>
-                      {u.role === 'admin' ? 'Admin' : u.role === 'ballmaschine' ? 'Ballmaschine' : 'Mitglied'}
+                    <span style={badge(u.role === 'admin' ? BK : '#34c759')}>
+                      {u.role === 'admin' ? 'Admin' : 'Mitglied'}
                     </span>
                     <button onClick={() => { setEditId(u.id); setEditFirst(u.first_name ?? ''); setEditLast(u.last_name ?? ''); setEditRole(u.role ?? 'member'); setEditMsg('') }}
                       style={{ background: 'transparent', border: `1px solid #ddd`, borderRadius: 4, padding: '5px 10px', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#555' }}>
