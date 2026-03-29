@@ -11,7 +11,8 @@ const badge = (bg: string): React.CSSProperties => ({ background: bg, color: (bg
 type CorrWithSession = CorrectionRequest & { sessions: Session | null }
 
 export default function Admin({ refreshKey }: { refreshKey: number }) {
-  const [tab, setTab] = useState<'corrections' | 'sessions' | 'users' | 'settings'>('corrections')
+  const [tab, setTab] = useState<'corrections' | 'sessions' | 'users' | 'settings' | 'registrations'>('corrections')
+  const [registrations, setRegistrations] = useState<any[]>([])
   const [lockCode, setLockCode] = useState('')
   const [lockCodeSaving, setLockCodeSaving] = useState(false)
   const [lockCodeMsg, setLockCodeMsg] = useState('')
@@ -28,16 +29,18 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
     const load = async () => {
       setLoading(true)
       const supabase = createClient()
-      const [{ data: corr }, { data: sess }, { data: prof }, codeData] = await Promise.all([
+      const [{ data: corr }, { data: sess }, { data: prof }, codeData, regs] = await Promise.all([
         supabase.from('correction_requests').select('*, sessions(*)').order('created_at', { ascending: false }),
         supabase.from('sessions').select('*').order('start_at', { ascending: false }),
         supabase.from('profiles').select('*').order('name'),
         supabase.from('settings').select('value').eq('id', 'lock_code').single(),
+        supabase.from('registration_requests').select('*').order('created_at', { ascending: false }),
       ])
       setCorrections((corr as CorrWithSession[]) || [])
       setSessions(sess || [])
       setUsers(prof || [])
       if (codeData?.data) setLockCode(codeData.data.value ?? '')
+      setRegistrations(regs?.data || [])
       setLoading(false)
     }
     load()
@@ -126,6 +129,12 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
     setLockCode(clean)
   }
 
+  const updateRegistration = async (id: string, status: 'invited' | 'rejected') => {
+    const supabase = createClient()
+    await supabase.from('registration_requests').update({ status }).eq('id', id)
+    setTick(t => t + 1)
+  }
+
   const pending = corrections.filter(c => c.status === 'pending')
   const resolved = corrections.filter(c => c.status !== 'pending')
   const activeSessions = sessions.filter(s => s.status !== 'cancelled')
@@ -151,11 +160,63 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
       </div>
       <div style={{ borderBottom: `2px solid ${BK}`, padding: '0 16px', background: Y, display: 'flex' }}>
         <TabBtn id="corrections" label="Korrekturen" badgeCount={pending.length} />
+        <TabBtn id="registrations" label="Anfragen" badgeCount={registrations.filter(r => r.status === 'pending').length} />
         <TabBtn id="sessions" label="Buchungen" />
         <TabBtn id="users" label="Nutzer" />
         <TabBtn id="settings" label="⚙️ Einstellungen" />
       </div>
       <div style={{ padding: 20 }}>
+
+        {/* ── REGISTRATIONS ── */}
+        {tab === 'registrations' && <>
+          <p style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, fontSize: 13, margin: '0 0 16px' }}>
+            Registrierungsanfragen ({registrations.filter(r => r.status === 'pending').length} offen)
+          </p>
+          {registrations.length === 0 && <p style={{ color: '#888' }}>Keine Anfragen vorhanden. 👍</p>}
+
+          {/* Offene Anfragen */}
+          {registrations.filter(r => r.status === 'pending').map(r => (
+            <div key={r.id} style={{ border: `2px solid ${BK}`, borderLeft: `5px solid ${Y}`, borderRadius: 6, padding: '14px 16px', marginBottom: 12, background: '#fffbea' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10 }}>
+                <div>
+                  <div style={{ fontWeight: 900, fontSize: 16 }}>{r.first_name} {r.last_name}</div>
+                  <div style={{ fontSize: 14, color: '#555', marginTop: 2 }}>{r.email}</div>
+                  <div style={{ fontSize: 12, color: '#999', marginTop: 4 }}>Eingegangen: {formatDate(r.created_at)}</div>
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button
+                    onClick={() => updateRegistration(r.id, 'invited')}
+                    style={{ background: '#34c759', color: '#fff', border: `2px solid #34c759`, borderRadius: 4, padding: '8px 14px', cursor: 'pointer', fontWeight: 700, fontSize: 13, fontFamily: 'inherit' }}
+                  >
+                    ✓ Eingeladen
+                  </button>
+                  <button
+                    onClick={() => updateRegistration(r.id, 'rejected')}
+                    style={{ background: 'transparent', color: '#ff3b30', border: `2px solid #ff3b30`, borderRadius: 4, padding: '8px 14px', cursor: 'pointer', fontWeight: 700, fontSize: 13, fontFamily: 'inherit' }}
+                  >
+                    ✕ Ablehnen
+                  </button>
+                </div>
+              </div>
+              <div style={{ marginTop: 10, fontSize: 12, color: '#888', background: '#fff', border: '1px solid #eee', borderRadius: 4, padding: '6px 10px' }}>
+                📋 Nächster Schritt: Person in Supabase einladen (Authentication → Invite user) und Einweisung vereinbaren.
+              </div>
+            </div>
+          ))}
+
+          {/* Erledigte Anfragen */}
+          {registrations.filter(r => r.status !== 'pending').length > 0 && <>
+            <p style={{ fontWeight: 700, textTransform: 'uppercase', fontSize: 12, color: '#888', margin: '20px 0 10px' }}>Erledigte Anfragen</p>
+            {registrations.filter(r => r.status !== 'pending').map(r => (
+              <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid #ddd', borderRadius: 6, padding: '10px 14px', marginBottom: 8 }}>
+                <span style={{ fontSize: 13 }}>{r.first_name} {r.last_name} · {r.email}</span>
+                <span style={badge(r.status === 'invited' ? '#34c759' : '#ff3b30')}>
+                  {r.status === 'invited' ? 'Eingeladen' : 'Abgelehnt'}
+                </span>
+              </div>
+            ))}
+          </>}
+        </>}
 
         {/* ── CORRECTIONS ── */}
         {tab === 'corrections' && <>

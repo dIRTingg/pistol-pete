@@ -30,16 +30,23 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Öffentliche Routen – kein Login nötig
-  const publicPaths = ['/login', '/auth/callback', '/auth/confirm', '/impressum']
+  const publicPaths = [
+    '/login',
+    '/auth/callback',
+    '/auth/confirm',
+    '/impressum',
+    '/mitmachen',
+    '/registrierung',
+    '/nutzungsbedingungen',
+    '/api/notify-admin',
+  ]
   const isPublic = publicPaths.some(p => pathname.startsWith(p))
 
   if (!user && !isPublic) {
-    // Nicht eingeloggt → zur Loginseite
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
   if (user && pathname === '/login') {
-    // Schon eingeloggt → zur Startseite
     return NextResponse.redirect(new URL('/', request.url))
   }
 
@@ -48,7 +55,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Alle Routen außer Next.js-interne und statische Dateien
     '/((?!_next/static|_next/image|favicon.ico|icons|manifest.json|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
