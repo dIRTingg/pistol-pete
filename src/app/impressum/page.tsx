@@ -121,6 +121,10 @@ export default function ImpressumPage() {
 
           <div style={{ borderTop: `2px solid #eee`, paddingTop: 16, marginTop: 8, fontSize: 13, color: '#888' }}>
             Stand: Februar 2026 · TV Häslach 1905 e.V. – Abteilung Tennis
+            <br />
+            <a href="/nutzungsbedingungen" style={{ color: '#888' }}>Nutzungsbedingungen</a>
+            {' · '}
+            <a href="/mitmachen" style={{ color: '#888' }}>Ballmaschine nutzen</a>
           </div>
         </div>
       </div>

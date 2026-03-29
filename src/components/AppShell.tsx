@@ -88,6 +88,8 @@ export default function AppShell({ profile }: { profile: Profile }) {
         TV Häslach 1905 e.V. · Tennis · „Pistol Pete“ · Florian Haustein · 01742418407
         <br />
         <a href="/impressum" style={{ color: BK, fontSize: 11, textDecoration: 'underline', fontWeight: 400 }}>Impressum & Datenschutz</a>
+        {' · '}
+        <a href="/nutzungsbedingungen" style={{ color: BK, fontSize: 11, textDecoration: 'underline', fontWeight: 400 }}>Nutzungsbedingungen</a>
       </div>
     </div>
   )
