@@ -1,4 +1,20 @@
 /** @type {import('next').NextConfig} */
+
+const ContentSecurityPolicy = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-eval' https://vercel.live",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob:",
+  "font-src 'self'",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.resend.com",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+  "frame-src 'self'",
+  "upgrade-insecure-requests",
+].join('; ')
+
 const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
@@ -11,16 +27,11 @@ const nextConfig = {
       {
         source: '/(.*)',
         headers: [
-          // Clickjacking-Schutz — App darf nicht in iframes eingebettet werden
           { key: 'X-Frame-Options', value: 'DENY' },
-          // MIME-Sniffing verhindern
           { key: 'X-Content-Type-Options', value: 'nosniff' },
-          // Referrer auf gleiche Origin beschränken
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          // Kamera, Mikrofon, Standort deaktivieren
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
-          // Content Security Policy — frame-ancestors verhindert Clickjacking auch in modernen Browsern
-          { key: 'Content-Security-Policy', value: "frame-ancestors 'none'" },
+          { key: 'Content-Security-Policy', value: ContentSecurityPolicy },
         ],
       },
     ]
