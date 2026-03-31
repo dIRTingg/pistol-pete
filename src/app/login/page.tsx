@@ -220,6 +220,14 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
+      {/* Footer */}
+      <div style={{ marginTop: 'auto', padding: '16px', textAlign: 'center', borderTop: `1px solid #ddd` }}>
+        <p style={{ fontSize: 12, color: '#aaa', margin: 0 }}>
+          <a href="/impressum" style={{ color: '#aaa', textDecoration: 'underline' }}>Impressum & Datenschutz</a>
+          {' · '}
+          <a href="/nutzungsbedingungen" style={{ color: '#aaa', textDecoration: 'underline' }}>Nutzungsbedingungen</a>
+        </p>
+      </div>
     </div>
   )
 }
