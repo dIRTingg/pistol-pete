@@ -190,8 +190,7 @@ export default function LoginPage() {
           )}
 
           <p style={{ fontSize: 12, color: '#888', marginTop: 12, textAlign: 'center', lineHeight: 1.6 }}>
-                    Kein Zugang? Wende dich an:<br />
-                    <strong>Florian Haustein</strong> · WhatsApp: 01742418407
+                    Noch kein Zugang? <a href="/mitmachen" style={{ color: BK, fontWeight: 700 }}>Jetzt registrieren →</a>
                   </p>
                 </>
               ) : resetSent ? (
