@@ -218,11 +218,15 @@ export default function CheckIn({ profile, onCheckedIn }: { profile: Profile; on
 
       <div style={{ marginBottom: 12 }}>
         <FieldLabel>Datum</FieldLabel>
-        <Input type="date" value={date} min={minDate} max={today} onChange={e => setDate(e.target.value)}
-          style={{ fontSize: 16, padding: '10px 12px', marginBottom: 10 }} />
+        <div style={{ border: `2px solid ${BK}`, borderRadius: 4, background: '#fff', padding: '0 12px', marginBottom: 10 }}>
+          <input type="date" value={date} min={minDate} max={today} onChange={e => setDate(e.target.value)}
+            style={{ display: 'block', width: '100%', border: 'none', outline: 'none', padding: '10px 0', fontSize: 16, fontFamily: 'inherit', background: 'transparent', color: BK }} />
+        </div>
         <FieldLabel>Uhrzeit</FieldLabel>
-        <Input type="time" value={time} onChange={e => setTime(e.target.value)}
-          style={{ fontSize: 16, padding: '10px 12px' }} />
+        <div style={{ border: `2px solid ${BK}`, borderRadius: 4, background: '#fff', padding: '0 12px' }}>
+          <input type="time" value={time} onChange={e => setTime(e.target.value)}
+            style={{ display: 'block', width: '100%', border: 'none', outline: 'none', padding: '10px 0', fontSize: 16, fontFamily: 'inherit', background: 'transparent', color: BK }} />
+        </div>
       </div>
 
       <FieldLabel>Dauer</FieldLabel>
