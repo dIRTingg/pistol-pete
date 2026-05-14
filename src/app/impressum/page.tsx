@@ -1,132 +1,254 @@
 'use client'
-// src/app/impressum/page.tsx
+
 import { useRouter } from 'next/navigation'
 
-const Y = '#FFE600'
+const Y  = '#FFE600'
 const BK = '#111'
+const mono: React.CSSProperties = { fontFamily: 'ui-monospace, "JetBrains Mono", Menlo, monospace' }
 
-const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <div style={{ marginBottom: 28 }}>
-    <div style={{ fontWeight: 900, fontSize: 16, textTransform: 'uppercase', letterSpacing: 1, borderBottom: `3px solid ${BK}`, paddingBottom: 6, marginBottom: 12 }}>
-      {title}
+// ── atoms ────────────────────────────────────────────────────────────────
+function BrandBar({ onClick }: { onClick?: () => void }) {
+  return (
+    <div style={{ padding: '12px 18px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ fontWeight: 900, fontSize: 14, textTransform: 'uppercase', letterSpacing: 1 }}>TV Häslach</span>
+        <span style={{ background: BK, color: Y, borderRadius: 3, padding: '2px 6px', fontSize: 10, fontWeight: 900, letterSpacing: 0.5 }}>1905</span>
+      </div>
+      <button
+        onClick={onClick}
+        style={{
+          background: '#fff', color: BK, border: `1.5px solid ${BK}`, borderRadius: 3,
+          padding: '4px 9px', fontSize: 11, fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase',
+          cursor: 'pointer', fontFamily: 'inherit',
+        }}
+      >
+        ← Zurück
+      </button>
     </div>
-    <div style={{ fontSize: 15, lineHeight: 1.7, color: '#333' }}>
+  )
+}
+
+function PeteHero({ kicker, title, sub }: { kicker?: string; title: React.ReactNode; sub?: string }) {
+  return (
+    <div style={{
+      background: Y, border: `3px solid ${BK}`, borderRadius: 12,
+      position: 'relative', overflow: 'hidden',
+      padding: '14px 16px 0',
+      boxShadow: `4px 4px 0 ${BK}`, marginBottom: 18,
+    }}>
+      <div style={{ position: 'absolute', inset: 0, background: `repeating-linear-gradient(135deg, transparent 0 18px, rgba(0,0,0,0.04) 18px 19px)`, pointerEvents: 'none' }} />
+      <div style={{ position: 'relative', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+        <div style={{ flex: 1, paddingBottom: 12 }}>
+          {kicker && <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 2 }}>{kicker}</div>}
+          <div style={{ fontWeight: 900, fontSize: 28, letterSpacing: 1.5, lineHeight: 0.95, textTransform: 'uppercase' }}>{title}</div>
+          {sub && <div style={{ marginTop: 8, fontSize: 11, fontWeight: 700, color: BK, opacity: 0.75 }}>{sub}</div>}
+        </div>
+        <img
+          src="/icons/pete.png" alt=""
+          style={{ height: 130, marginRight: -8, marginBottom: -2, filter: 'drop-shadow(3px 5px 0 rgba(0,0,0,0.15))', flexShrink: 0 }}
+          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+        />
+      </div>
+    </div>
+  )
+}
+
+function SectionHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <h3 style={{
+      fontWeight: 900, fontSize: 13, textTransform: 'uppercase', letterSpacing: 1.5,
+      color: BK, borderBottom: `2px solid ${BK}`, paddingBottom: 6, marginBottom: 10,
+      margin: '0 0 10px',
+    }}>
+      {children}
+    </h3>
+  )
+}
+
+function P({ children }: { children: React.ReactNode }) {
+  return (
+    <p style={{ fontSize: 13.5, color: '#333', lineHeight: 1.6, margin: '0 0 14px' }}>
+      {children}
+    </p>
+  )
+}
+
+function UL({ items }: { items: React.ReactNode[] }) {
+  return (
+    <ul style={{ margin: '0 0 14px', paddingLeft: 0, listStyle: 'none' }}>
+      {items.map((item, i) => (
+        <li key={i} style={{ display: 'flex', gap: 8, fontSize: 13, color: '#333', marginBottom: 5, lineHeight: 1.4 }}>
+          <span style={{ color: BK, fontWeight: 900, flexShrink: 0 }}>›</span>
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+function Card({ children, accent }: { children: React.ReactNode; accent?: string }) {
+  return (
+    <div style={{
+      background: '#fff', border: `2px solid ${BK}`,
+      borderLeft: `5px solid ${accent ?? Y}`,
+      borderRadius: 4, padding: '12px 14px', marginBottom: 10,
+    }}>
       {children}
     </div>
-  </div>
-)
+  )
+}
 
+// ── page ─────────────────────────────────────────────────────────────────
 export default function ImpressumPage() {
   const router = useRouter()
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f4f4ef', fontFamily: "'Barlow Condensed', 'Arial Narrow', sans-serif" }}>
-      {/* Header */}
-      <div style={{ background: Y, borderBottom: `4px solid ${BK}`, padding: '0 16px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>
-        <span style={{ fontWeight: 900, fontSize: 20, textTransform: 'uppercase', letterSpacing: 1, display: 'flex', alignItems: 'center', gap: 10 }}>
-          TV Häslach
-          <span style={{ background: BK, color: Y, borderRadius: 4, padding: '2px 7px', fontSize: 12 }}>1905</span>
-          <span style={{ fontWeight: 400, fontSize: 14, borderLeft: `2px solid ${BK}`, paddingLeft: 10, marginLeft: 4 }}>Pistol Pete</span>
-        </span>
-        <button onClick={() => router.back()}
-          style={{ background: 'transparent', color: BK, border: `2px solid ${BK}`, borderRadius: 4, padding: '6px 14px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700, fontSize: 14 }}>
-          ← Zurück
-        </button>
+    <div style={{ minHeight: '100vh', background: '#f4f4ef', display: 'flex', flexDirection: 'column', fontFamily: "'Barlow Condensed', 'Arial Narrow', sans-serif" }}>
+      <BrandBar onClick={() => router.back()} />
+
+      <div style={{ flex: 1, padding: '0 18px' }}>
+        <div style={{ width: '100%', maxWidth: 420, margin: '0 auto' }}>
+
+          <PeteHero
+            kicker="Rechtliches"
+            title={<>Impressum &amp;<br />Datenschutz</>}
+            sub="TV Häslach 1905 e.V. · Pistol Pete"
+          />
+
+          {/* ── A · Impressum ─────────────────────────────────────────── */}
+          <div style={{ marginBottom: 20 }}>
+            <SectionHeading>Impressum</SectionHeading>
+            <P>
+              <strong>TV Häslach 1905 e.V.</strong><br />
+              Abteilung Tennis<br />
+              Interne Vereinsanwendung – nicht öffentlich zugänglich.
+            </P>
+
+            {/* FH-Karte */}
+            <div style={{
+              background: BK, border: `2px solid ${BK}`, borderRadius: 6,
+              padding: '12px 14px', marginBottom: 10,
+              display: 'flex', alignItems: 'center', gap: 12,
+            }}>
+              <div style={{
+                width: 40, height: 40, borderRadius: '50%',
+                background: Y, border: `2px solid #333`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontWeight: 900, fontSize: 16, color: BK, flexShrink: 0,
+              }}>FH</div>
+              <div>
+                <div style={{ fontWeight: 900, fontSize: 14, color: '#fff', letterSpacing: 0.5 }}>Florian Haustein</div>
+                <div style={{ fontSize: 11, color: '#aaa', marginTop: 1 }}>Ballmaschinenwart · techn. Betreiber</div>
+              </div>
+            </div>
+
+            {/* Kontakt-Karte */}
+            <div style={{
+              background: Y, border: `2px solid ${BK}`, borderRadius: 6,
+              padding: '10px 14px', boxShadow: `3px 3px 0 ${BK}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            }}>
+              <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1 }}>WhatsApp</div>
+              <div style={{ ...mono, fontWeight: 900, fontSize: 15 }}>0174 2418407</div>
+            </div>
+          </div>
+
+          {/* ── B · Datenschutz ───────────────────────────────────────── */}
+          <div style={{ marginBottom: 20 }}>
+            <SectionHeading>Datenschutzerklärung</SectionHeading>
+            <P>
+              Der Schutz deiner persönlichen Daten ist uns wichtig. Diese Erklärung informiert dich über Erhebung, Verwendung und Speicherung deiner Daten.
+            </P>
+          </div>
+
+          {/* ── C · Welche Daten ──────────────────────────────────────── */}
+          <div style={{ marginBottom: 20 }}>
+            <SectionHeading>Welche Daten werden gespeichert?</SectionHeading>
+            <UL items={[
+              <><strong>Account:</strong> Name und E-Mail (durch Admin angelegt)</>,
+              <><strong>Nutzung:</strong> Datum, Uhrzeit, Dauer und Kosten jeder Session</>,
+              <><strong>Korrekturen:</strong> Anpassungen inkl. Begründung</>,
+              <><strong>Technisch:</strong> Supabase &amp; Vercel loggen anonymisierte Zugriffsdaten (IP, Zeitstempel)</>,
+            ]} />
+          </div>
+
+          {/* ── D · Wofür ─────────────────────────────────────────────── */}
+          <div style={{ marginBottom: 20 }}>
+            <SectionHeading>Wofür werden die Daten genutzt?</SectionHeading>
+            <UL items={[
+              'Abrechnung der Ballmaschinennutzung (5 € / angefangene Stunde)',
+              'Verwaltung und Nachverfolgung der Buchungen',
+              'Abrechnungsübersichten für den Verein',
+            ]} />
+            <P>Kein Tracking. Keine Weitergabe an Dritte. Keine Werbung.</P>
+          </div>
+
+          {/* ── Provider-Karten ───────────────────────────────────────── */}
+          <div style={{ marginBottom: 20 }}>
+            <SectionHeading>Wo werden die Daten gespeichert?</SectionHeading>
+
+            <Card>
+              <div style={{ fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 4 }}>Supabase</div>
+              <div style={{ fontSize: 12, color: '#444', lineHeight: 1.5 }}>
+                Datenbank &amp; Authentifizierung<br />
+                Serverstandort: <strong>Frankfurt, DE</strong> (DSGVO-konform)<br />
+                <a href="https://supabase.com/privacy" target="_blank" rel="noreferrer" style={{ color: BK, ...mono, fontSize: 11 }}>supabase.com/privacy</a>
+              </div>
+            </Card>
+
+            <Card>
+              <div style={{ fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 4 }}>Vercel</div>
+              <div style={{ fontSize: 12, color: '#444', lineHeight: 1.5 }}>
+                Hosting der Webanwendung<br />
+                Serverstandort: Washington D.C., USA (EU-Garantien)<br />
+                <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noreferrer" style={{ color: BK, ...mono, fontSize: 11 }}>vercel.com/legal/privacy-policy</a>
+              </div>
+            </Card>
+          </div>
+
+          {/* ── E · DSGVO-Rechte ──────────────────────────────────────── */}
+          <div style={{ marginBottom: 20 }}>
+            <SectionHeading>Deine Rechte (DSGVO)</SectionHeading>
+            <UL items={[
+              <><strong>Auskunft:</strong> Du kannst jederzeit Auskunft über gespeicherte Daten verlangen</>,
+              <><strong>Berichtigung:</strong> Fehlerhafte Daten werden auf Anfrage korrigiert</>,
+              <><strong>Löschung:</strong> Du kannst die Löschung deines Accounts beantragen</>,
+              <><strong>Widerspruch:</strong> Du kannst der Verarbeitung widersprechen</>,
+            ]} />
+            <Card accent="#34c759">
+              <div style={{ fontSize: 11, fontWeight: 900, color: '#1e7a3a', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 4 }}>Kontakt</div>
+              <div style={{ fontSize: 12.5, color: '#1e3a25', lineHeight: 1.5 }}>
+                <strong>Florian Haustein</strong> · WhatsApp <span style={mono}>0174 2418407</span>
+              </div>
+            </Card>
+          </div>
+
+          {/* ── F · Cookies ───────────────────────────────────────────── */}
+          <div style={{ marginBottom: 20 }}>
+            <SectionHeading>Cookies &amp; lokale Speicherung</SectionHeading>
+            <P>
+              Ausschließlich technisch notwendige Cookies zur Aufrechterhaltung der Anmeldesitzung (Session-Cookie von Supabase). Kein Tracking. Keine Analyse-Dienste.
+            </P>
+          </div>
+
+          {/* ── Footer ────────────────────────────────────────────────── */}
+          <div style={{
+            borderTop: `2px dashed #ccc`, paddingTop: 14, marginTop: 4,
+            fontSize: 10, color: '#888', textAlign: 'center', letterSpacing: 1, textTransform: 'uppercase',
+          }}>
+            Stand · Februar 2026 · TV Häslach 1905 e.V.
+            <div style={{ marginTop: 6, display: 'flex', justifyContent: 'center', gap: 12 }}>
+              <a href="/nutzungsbedingungen" style={{ color: '#888', textDecoration: 'none' }}>Nutzungsbedingungen</a>
+              <span>·</span>
+              <a href="/mitmachen" style={{ color: '#888', textDecoration: 'none' }}>Mitmachen</a>
+            </div>
+          </div>
+
+        </div>
       </div>
 
-      <div style={{ maxWidth: 720, margin: '0 auto', padding: '28px 16px 60px' }}>
-
-        {/* Titel */}
-        <div style={{ background: Y, border: `2px solid ${BK}`, borderRadius: 8, padding: '16px 20px', marginBottom: 24 }}>
-          <div style={{ fontWeight: 900, fontSize: 26, textTransform: 'uppercase', letterSpacing: 1 }}>Impressum & Datenschutz</div>
-          <div style={{ fontSize: 14, marginTop: 4, color: '#555' }}>Pistol Pete – Ballmaschinen-App · TV Häslach 1905 e.V.</div>
-        </div>
-
-        <div style={{ background: '#fff', border: `2px solid ${BK}`, borderRadius: 8, padding: 24 }}>
-
-          {/* ── IMPRESSUM ── */}
-          <Section title="Impressum">
-            <strong>TV Häslach 1905 e.V. – Abteilung Tennis</strong><br />
-            Verantwortlich für diese Anwendung:<br /><br />
-            <strong>Florian Haustein</strong><br />
-            Ballmaschinenwart / technischer Betreiber<br />
-            Kontakt: WhatsApp 01742418407<br /><br />
-            Diese App ist eine interne Vereinsanwendung und nicht öffentlich zugänglich. Sie dient ausschließlich der Verwaltung der Ballmaschinennutzung durch Mitglieder des TV Häslach 1905 e.V.
-          </Section>
-
-          {/* ── DATENSCHUTZ ── */}
-          <Section title="Datenschutzerklärung">
-            Der Schutz deiner persönlichen Daten ist uns wichtig. Diese Erklärung informiert dich darüber, welche Daten wir erheben, wie wir sie verwenden und wie lange wir sie speichern.
-          </Section>
-
-          <Section title="Welche Daten werden gespeichert?">
-            Im Rahmen der Nutzung dieser App werden folgende Daten erhoben und gespeichert:
-            <ul style={{ marginTop: 8, paddingLeft: 20, lineHeight: 2 }}>
-              <li><strong>Accountdaten:</strong> Name und E-Mail-Adresse (werden beim Anlegen des Accounts durch den Administrator erfasst)</li>
-              <li><strong>Nutzungsdaten:</strong> Datum, Uhrzeit, Dauer und Kosten jeder Ballmaschinen-Session</li>
-              <li><strong>Korrekturen:</strong> Anpassungen von Buchungen inkl. Begründung</li>
-              <li><strong>Technische Logs:</strong> Supabase und Vercel protokollieren serverseitig anonymisierte Zugriffsdaten (IP-Adressen, Zeitstempel) im Rahmen ihres regulären Betriebs</li>
-            </ul>
-          </Section>
-
-          <Section title="Wofür werden die Daten genutzt?">
-            Die gespeicherten Daten dienen ausschließlich folgenden Zwecken:
-            <ul style={{ marginTop: 8, paddingLeft: 20, lineHeight: 2 }}>
-              <li>Abrechnung der Ballmaschinennutzung (5 € pro angefangene Stunde)</li>
-              <li>Verwaltung und Nachverfolgung der Buchungen durch den Ballmaschinenwart</li>
-              <li>Erstellung von Abrechnungsübersichten für den Verein</li>
-            </ul>
-            Es findet kein App-Tracking, keine Weitergabe an Dritte und keine Nutzung für Werbezwecke statt.
-          </Section>
-
-          <Section title="Wo werden die Daten gespeichert?">
-            Diese App nutzt folgende externe Dienste:<br /><br />
-            <strong>Supabase</strong> (Datenbank & Authentifizierung)<br />
-            Anbieter: Supabase Inc., 970 Toa Payoh North, Singapur<br />
-            Serverstandort: Frankfurt, Deutschland (EU)<br />
-            Datenschutz: <a href="https://supabase.com/privacy" target="_blank" rel="noreferrer" style={{ color: BK }}>supabase.com/privacy</a><br /><br />
-
-            <strong>Vercel</strong> (Hosting der Webanwendung)<br />
-            Anbieter: Vercel Inc., 340 S Lemon Ave #4133, Walnut, CA, USA<br />
-            Serverstandort: Washington D.C., USA (mit EU-Datentransfer-Garantien)<br />
-            Datenschutz: <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noreferrer" style={{ color: BK }}>vercel.com/legal/privacy-policy</a>
-          </Section>
-
-          <Section title="Wie lange werden die Daten gespeichert?">
-            <ul style={{ marginTop: 8, paddingLeft: 20, lineHeight: 2 }}>
-              <li><strong>Buchungsdaten</strong> werden nach Abschluss der Abrechnung durch den Administrator manuell zurückgesetzt (Reset-Funktion)</li>
-              <li><strong>Accountdaten</strong> bleiben bestehen solange du Mitglied bist und einen Zugang benötigst</li>
-              <li><strong>Technische Logs</strong> werden von Supabase und Vercel gemäß deren eigenen Datenschutzrichtlinien automatisch gelöscht (in der Regel nach 30–90 Tagen)</li>
-            </ul>
-          </Section>
-
-          <Section title="Deine Rechte (DSGVO)">
-            Als betroffene Person hast du folgende Rechte:
-            <ul style={{ marginTop: 8, paddingLeft: 20, lineHeight: 2 }}>
-              <li><strong>Auskunft:</strong> Du kannst jederzeit Auskunft über deine gespeicherten Daten verlangen</li>
-              <li><strong>Berichtigung:</strong> Fehlerhafte Daten werden auf Anfrage korrigiert</li>
-              <li><strong>Löschung:</strong> Du kannst die Löschung deines Accounts und aller zugehörigen Daten beantragen</li>
-              <li><strong>Widerspruch:</strong> Du kannst der Verarbeitung deiner Daten widersprechen</li>
-            </ul>
-            Wende dich dazu an: <strong>Florian Haustein</strong> · WhatsApp 01742418407
-          </Section>
-
-          <Section title="Cookies & lokale Speicherung">
-            Diese App verwendet ausschließlich technisch notwendige Cookies zur Aufrechterhaltung deiner Anmeldesitzung (Session-Cookie von Supabase). Es werden keine Tracking-Cookies, keine Werbe-Cookies und keine Analyse-Dienste eingesetzt.
-          </Section>
-
-          <Section title="Änderungen dieser Erklärung">
-            Diese Datenschutzerklärung kann bei Bedarf angepasst werden. Die jeweils aktuelle Version ist in der App abrufbar.
-          </Section>
-
-          <div style={{ borderTop: `2px solid #eee`, paddingTop: 16, marginTop: 8, fontSize: 13, color: '#888' }}>
-            Stand: Februar 2026 · TV Häslach 1905 e.V. – Abteilung Tennis
-            <br />
-            <a href="/nutzungsbedingungen" style={{ color: '#888' }}>Nutzungsbedingungen</a>
-            {' · '}
-            <a href="/mitmachen" style={{ color: '#888' }}>Ballmaschine nutzen</a>
-          </div>
-        </div>
+      <div style={{ padding: '14px 16px 18px', textAlign: 'center', fontSize: 10, color: '#777', letterSpacing: 1, textTransform: 'uppercase' }}>
+        Impressum · Datenschutz · Nutzungsbedingungen
       </div>
     </div>
   )
