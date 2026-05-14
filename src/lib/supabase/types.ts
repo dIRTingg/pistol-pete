@@ -1,5 +1,4 @@
 // src/lib/supabase/types.ts
-// Update-Typen als string um TypeScript never-Inferenz zu vermeiden
 
 export type Database = {
   public: {
@@ -8,19 +7,26 @@ export type Database = {
         Row: {
           id: string
           name: string
+          first_name: string | null
+          last_name: string | null
           role: string
           created_at: string
         }
         Insert: {
           id: string
           name: string
+          first_name?: string | null
+          last_name?: string | null
           role?: string
           created_at?: string
         }
         Update: {
           name?: string
+          first_name?: string | null
+          last_name?: string | null
           role?: string
         }
+        Relationships: []
       }
       sessions: {
         Row: {
@@ -51,6 +57,7 @@ export type Database = {
           status?: string
           note?: string | null
         }
+        Relationships: []
       }
       correction_requests: {
         Row: {
@@ -76,12 +83,56 @@ export type Database = {
         }
         Update: {
           status?: string
-          resolved_at?: string
+          resolved_at?: string | null
           duration_min?: number
           cost?: number
         }
+        Relationships: []
+      }
+      registration_requests: {
+        Row: {
+          id: string
+          first_name: string
+          last_name: string
+          email: string
+          accepted_terms: boolean
+          accepted_billing: boolean
+          accepted_privacy: boolean
+          status: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          first_name: string
+          last_name: string
+          email: string
+          accepted_terms: boolean
+          accepted_billing: boolean
+          accepted_privacy: boolean
+          status?: string
+          created_at?: string
+        }
+        Update: {
+          status?: string
+        }
+        Relationships: []
+      }
+      settings: {
+        Row: {
+          id: string
+          value: string
+        }
+        Insert: {
+          id: string
+          value: string
+        }
+        Update: {
+          value?: string
+        }
+        Relationships: []
       }
     }
+    Views: Record<string, never>
     Functions: {
       is_admin: {
         Args: Record<string, never>
@@ -91,6 +142,10 @@ export type Database = {
         Args: { duration_minutes: number }
         Returns: number
       }
+      resolve_correction: {
+        Args: { p_correction_id: string; p_approve: boolean }
+        Returns: undefined
+      }
     }
   }
 }
@@ -99,3 +154,5 @@ export type Database = {
 export type Profile = Database['public']['Tables']['profiles']['Row']
 export type Session = Database['public']['Tables']['sessions']['Row']
 export type CorrectionRequest = Database['public']['Tables']['correction_requests']['Row']
+export type RegistrationRequest = Database['public']['Tables']['registration_requests']['Row']
+export type Setting = Database['public']['Tables']['settings']['Row']

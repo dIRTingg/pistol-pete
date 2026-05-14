@@ -1,5 +1,5 @@
 'use client'
-// src/components/AppShell.tsx
+
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -9,7 +9,7 @@ import History from './History'
 import Guide from './Guide'
 import Admin from './Admin'
 
-const Y = '#FFE600'
+const Y  = '#FFE600'
 const BK = '#111'
 
 type Page = 'checkin' | 'history' | 'guide' | 'admin'
@@ -19,11 +19,11 @@ export default function AppShell({ profile }: { profile: Profile }) {
   const [page, setPage] = useState<Page>('checkin')
   const [refreshKey, setRefreshKey] = useState(0)
 
-  const navItems: { id: Page; label: string; icon: string }[] = [
-    { id: 'checkin', label: 'Check-in', icon: '➕' },
-    { id: 'history', label: 'Historie', icon: '📋' },
-    { id: 'guide', label: 'Anleitung', icon: '📖' },
-    ...(profile.role === 'admin' ? [{ id: 'admin' as Page, label: 'Admin', icon: '🛡️' }] : []),
+  const navItems: { id: Page; label: string }[] = [
+    { id: 'checkin', label: 'Check-in' },
+    { id: 'history', label: 'Historie' },
+    { id: 'guide',   label: 'Anleitung' },
+    ...(profile.role === 'admin' ? [{ id: 'admin' as Page, label: 'Admin' }] : []),
   ]
 
   const doLogout = async () => {
@@ -33,63 +33,107 @@ export default function AppShell({ profile }: { profile: Profile }) {
     router.refresh()
   }
 
+  const firstName = profile.first_name ?? profile.name
+
   return (
     <div style={{ fontFamily: "'Barlow Condensed', 'Arial Narrow', sans-serif", minHeight: '100vh', background: '#f4f4ef', color: BK }}>
 
-      {/* ── Header ── */}
-      <div style={{ background: Y, borderBottom: `4px solid ${BK}`, padding: '0 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 64, position: 'sticky', top: 0, zIndex: 100 }}>
-        <div style={{ fontWeight: 900, fontSize: 20, textTransform: 'uppercase', letterSpacing: 1, display: 'flex', alignItems: 'center', gap: 10 }}>
-                    TV Häslach
-          <span style={{ background: BK, color: Y, borderRadius: 4, padding: '2px 7px', fontSize: 12 }}>1905</span>
-          <span style={{ fontWeight: 400, fontSize: 14, borderLeft: `2px solid ${BK}`, paddingLeft: 10, marginLeft: 4 }}>
-            Pistol Pete
-          </span>
+      {/* ── BrandBar ── */}
+      <div style={{
+        background: '#f4f4ef', borderBottom: `1px solid #ddd`,
+        padding: '12px 18px 10px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        position: 'sticky', top: 0, zIndex: 100,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontWeight: 900, fontSize: 14, textTransform: 'uppercase', letterSpacing: 1 }}>TV Häslach</span>
+          <span style={{ background: BK, color: Y, borderRadius: 3, padding: '2px 6px', fontSize: 10, fontWeight: 900, letterSpacing: 0.5 }}>1905</span>
+          <span style={{ fontSize: 11, color: '#666', fontWeight: 700, marginLeft: 4 }}>· Pistol Pete</span>
         </div>
         <button
           onClick={doLogout}
-          style={{ background: 'transparent', color: BK, border: `2px solid ${BK}`, borderRadius: 4, padding: '7px 14px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}
+          style={{
+            background: 'transparent', color: BK, border: `1.5px solid ${BK}`,
+            borderRadius: 3, padding: '5px 10px', cursor: 'pointer',
+            fontFamily: 'inherit', fontWeight: 800, fontSize: 10,
+            letterSpacing: 1, textTransform: 'uppercase',
+            display: 'flex', alignItems: 'center', gap: 5,
+          }}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginRight:6,verticalAlign:'middle'}}>
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-              <polyline points="16 17 21 12 16 7"/>
-              <line x1="21" y1="12" x2="9" y2="12"/>
-            </svg>Abmelden
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <path d="M16 17l5-5-5-5" />
+            <path d="M21 12H9" />
+          </svg>
+          Abmelden
         </button>
       </div>
 
-      {/* ── Navigation ── */}
-      <div style={{ background: '#fff', borderBottom: `2px solid ${BK}`, display: 'flex', justifyContent: 'center', gap: 4, padding: '8px 12px', flexWrap: 'wrap' }}>
-        {navItems.map(n => (
-          <button
-            key={n.id}
-            onClick={() => setPage(n.id)}
-            style={{ flex: '1 1 0', minWidth: 0, background: page === n.id ? BK : 'transparent', color: page === n.id ? Y : BK, border: `2px solid ${BK}`, borderRadius: 4, padding: '7px 10px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700, fontSize: 14, letterSpacing: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, whiteSpace: 'nowrap' }}
-          >
-            {n.icon} {n.label}
-          </button>
-        ))}
+      {/* ── Tab nav ── */}
+      <div style={{
+        background: '#f4f4ef',
+        padding: '8px 18px 10px',
+        display: 'flex', gap: 6,
+        borderBottom: `1px solid #ddd`,
+        overflowX: 'auto',
+      }}>
+        {navItems.map(n => {
+          const on = page === n.id
+          return (
+            <button
+              key={n.id}
+              onClick={() => setPage(n.id)}
+              style={{
+                flex: navItems.length > 3 ? '0 0 auto' : 1,
+                minWidth: navItems.length > 3 ? 84 : 0,
+                background: on ? BK : '#fff',
+                color: on ? Y : BK,
+                border: `1.5px solid ${BK}`,
+                borderRadius: 4,
+                padding: '8px 10px',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                fontWeight: 900,
+                fontSize: 12,
+                letterSpacing: 1,
+                textTransform: 'uppercase',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {n.label}
+            </button>
+          )
+        })}
       </div>
 
-      {/* ── Welcome bar ── */}
-      <div style={{ background: Y, borderBottom: `2px solid ${BK}`, padding: '6px 20px', fontSize: 13, fontWeight: 700 }}>
-        👋 Hallo {profile.first_name ?? profile.name}!
+      {/* ── Slim greeting ── */}
+      <div style={{ padding: '10px 18px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ fontSize: 11, fontWeight: 800, color: '#666', letterSpacing: 2, textTransform: 'uppercase' }}>● Online</span>
+        <span style={{ fontSize: 12, fontWeight: 700, color: BK }}>
+          Hallo, <strong style={{ color: BK, borderBottom: `2px solid ${Y}` }}>{firstName}</strong>
+        </span>
       </div>
 
       {/* ── Content ── */}
-      <div style={{ maxWidth: 720, margin: '0 auto', padding: '24px 16px 60px' }}>
+      <div style={{ maxWidth: 720, margin: '0 auto', padding: '12px 0 40px' }}>
         {page === 'checkin' && <CheckIn profile={profile} onCheckedIn={() => setRefreshKey(k => k + 1)} />}
         {page === 'history' && <History profile={profile} refreshKey={refreshKey} />}
-        {page === 'guide' && <Guide />}
+        {page === 'guide'   && <Guide />}
         {page === 'admin' && profile.role === 'admin' && <Admin refreshKey={refreshKey} />}
       </div>
 
-      {/* ── Footer ── */}
-      <div style={{ textAlign: 'center', padding: '14px 20px', borderTop: `2px solid ${BK}`, background: Y, fontSize: 12, fontWeight: 700, lineHeight: 2 }}>
-        TV Häslach 1905 e.V. · Tennis · „Pistol Pete“ · Florian Haustein · 01742418407
-        <br />
-        <a href="/impressum" style={{ color: BK, fontSize: 11, textDecoration: 'underline', fontWeight: 400 }}>Impressum & Datenschutz</a>
+      {/* ── Slim legal footer ── */}
+      <div style={{
+        padding: '14px 16px 18px', textAlign: 'center',
+        fontSize: 10, color: '#777', letterSpacing: 1, textTransform: 'uppercase',
+        borderTop: `1px solid #ddd`,
+      }}>
+        <span style={{ display: 'block', marginBottom: 4 }}>
+          TV Häslach 1905 e.V. · Tennis · Pistol Pete
+        </span>
+        <a href="/impressum" style={{ color: '#777', textDecoration: 'none' }}>Impressum & Datenschutz</a>
         {' · '}
-        <a href="/nutzungsbedingungen" style={{ color: BK, fontSize: 11, textDecoration: 'underline', fontWeight: 400 }}>Nutzungsbedingungen</a>
+        <a href="/nutzungsbedingungen" style={{ color: '#777', textDecoration: 'none' }}>Nutzungsbedingungen</a>
       </div>
     </div>
   )
