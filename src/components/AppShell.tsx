@@ -36,7 +36,7 @@ export default function AppShell({ profile }: { profile: Profile }) {
   const firstName = profile.first_name ?? profile.name
 
   return (
-    <div style={{ fontFamily: "'Barlow Condensed', 'Arial Narrow', sans-serif", minHeight: '100vh', background: '#f4f4ef', color: BK, overflowX: 'hidden' }}>
+    <div style={{ fontFamily: "'Barlow Condensed', 'Arial Narrow', sans-serif", minHeight: '100vh', background: '#f4f4ef', color: BK }}>
 
       {/* ── BrandBar ── */}
       <div style={{
