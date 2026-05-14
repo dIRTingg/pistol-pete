@@ -101,7 +101,7 @@ export default function CheckIn({ profile, onCheckedIn }: { profile: Profile; on
       duration_min: dur,
       cost,
       note: note || null,
-      status: 'active',
+      status: 'confirmed',
     })
     if (error) {
       setErr('Fehler beim Einchecken: ' + error.message)
