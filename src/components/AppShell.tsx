@@ -36,7 +36,7 @@ export default function AppShell({ profile }: { profile: Profile }) {
   const firstName = profile.first_name ?? profile.name
 
   return (
-    <div style={{ fontFamily: "'Barlow Condensed', 'Arial Narrow', sans-serif", minHeight: '100vh', background: '#f4f4ef', color: BK }}>
+    <div style={{ fontFamily: "'Barlow Condensed', 'Arial Narrow', sans-serif", minHeight: '100vh', background: '#f4f4ef', color: BK, overflowX: 'hidden' }}>
 
       {/* ── BrandBar ── */}
       <div style={{
@@ -75,7 +75,6 @@ export default function AppShell({ profile }: { profile: Profile }) {
         padding: '8px 18px 10px',
         display: 'flex', gap: 6,
         borderBottom: `1px solid #ddd`,
-        overflowX: 'auto',
       }}>
         {navItems.map(n => {
           const on = page === n.id
@@ -84,20 +83,22 @@ export default function AppShell({ profile }: { profile: Profile }) {
               key={n.id}
               onClick={() => setPage(n.id)}
               style={{
-                flex: navItems.length > 3 ? '0 0 auto' : 1,
-                minWidth: navItems.length > 3 ? 84 : 0,
+                flex: 1,
+                minWidth: 0,
                 background: on ? BK : '#fff',
                 color: on ? Y : BK,
                 border: `1.5px solid ${BK}`,
                 borderRadius: 4,
-                padding: '8px 10px',
+                padding: '8px 4px',
                 cursor: 'pointer',
                 fontFamily: 'inherit',
                 fontWeight: 900,
-                fontSize: 12,
-                letterSpacing: 1,
+                fontSize: 11,
+                letterSpacing: 0.5,
                 textTransform: 'uppercase',
                 whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
               }}
             >
               {n.label}
