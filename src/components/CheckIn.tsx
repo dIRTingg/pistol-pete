@@ -216,14 +216,30 @@ export default function CheckIn({ profile, onCheckedIn }: { profile: Profile; on
         <span style={{ fontSize: 12, color: '#333' }}>Der Schloss-Code erscheint nach dem Check-in.</span>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
-        <div style={{ minWidth: 0 }}>
+      <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
+        <div style={{ flex: '1 1 0', minWidth: 0, overflow: 'hidden' }}>
           <FieldLabel>Datum</FieldLabel>
-          <Input type="date" value={date} min={minDate} max={today} onChange={e => setDate(e.target.value)} style={{ fontSize: 16 }} />
+          <input
+            type="date" value={date} min={minDate} max={today}
+            onChange={e => setDate(e.target.value)}
+            style={{
+              width: '100%', boxSizing: 'border-box', minWidth: 0, maxWidth: '100%',
+              background: '#fff', color: BK, border: `2px solid ${BK}`, borderRadius: 4,
+              padding: '10px 8px', fontSize: 16, fontFamily: 'inherit', outline: 'none', display: 'block',
+            }}
+          />
         </div>
-        <div style={{ minWidth: 0 }}>
+        <div style={{ flex: '1 1 0', minWidth: 0, overflow: 'hidden' }}>
           <FieldLabel>Start</FieldLabel>
-          <Input type="time" value={time} onChange={e => setTime(e.target.value)} style={{ fontSize: 16 }} />
+          <input
+            type="time" value={time}
+            onChange={e => setTime(e.target.value)}
+            style={{
+              width: '100%', boxSizing: 'border-box', minWidth: 0, maxWidth: '100%',
+              background: '#fff', color: BK, border: `2px solid ${BK}`, borderRadius: 4,
+              padding: '10px 8px', fontSize: 16, fontFamily: 'inherit', outline: 'none', display: 'block',
+            }}
+          />
         </div>
       </div>
 
