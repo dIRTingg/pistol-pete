@@ -32,7 +32,7 @@ export default function RootLayout({
     <html lang="de">
       <head>
         <link
-          href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=JetBrains+Mono:wght@800;900&display=swap"
           rel="stylesheet"
         />
       </head>
