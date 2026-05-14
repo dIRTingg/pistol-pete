@@ -217,13 +217,13 @@ export default function CheckIn({ profile, onCheckedIn }: { profile: Profile; on
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
-        <div>
+        <div style={{ minWidth: 0 }}>
           <FieldLabel>Datum</FieldLabel>
-          <Input type="date" value={date} min={minDate} max={today} onChange={e => setDate(e.target.value)} />
+          <Input type="date" value={date} min={minDate} max={today} onChange={e => setDate(e.target.value)} style={{ fontSize: 16 }} />
         </div>
-        <div>
+        <div style={{ minWidth: 0 }}>
           <FieldLabel>Start</FieldLabel>
-          <Input type="time" value={time} onChange={e => setTime(e.target.value)} />
+          <Input type="time" value={time} onChange={e => setTime(e.target.value)} style={{ fontSize: 16 }} />
         </div>
       </div>
 
