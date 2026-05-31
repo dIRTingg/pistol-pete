@@ -118,8 +118,8 @@ export default function CheckIn({ profile, onCheckedIn }: { profile: Profile; on
   if (done) {
     const firstName = profile.first_name ?? profile.name
     return (
-      <div style={{ padding: '0 18px', position: 'relative', overflow: 'hidden', minHeight: '70vh' }}>
-        <TennisBallCelebration count={34} floorY={700} />
+      <div style={{ padding: '0 18px', position: 'relative' }}>
+        <TennisBallCelebration count={34} />
         <div style={{ position: 'relative', zIndex: 20 }}>
         <PeteHero
           kicker="● Eingecheckt"
@@ -182,16 +182,6 @@ export default function CheckIn({ profile, onCheckedIn }: { profile: Profile; on
           ))}
         </div>
 
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button
-            onClick={() => { setDone(null); setNote('') }}
-            style={{
-              flex: 1, background: '#fff', color: BK, border: `2px solid ${BK}`,
-              borderRadius: 4, padding: '12px', fontFamily: 'inherit',
-              fontWeight: 800, fontSize: 12, letterSpacing: 1, textTransform: 'uppercase', cursor: 'pointer',
-            }}
-          >↺ Neuer Check-in</button>
-        </div>
         </div>{/* end zIndex wrapper */}
       </div>
     )

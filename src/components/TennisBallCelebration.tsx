@@ -53,14 +53,18 @@ type Ball = {
   floor: number; b1: number; b2: number; b3: number; spin: number;
 }
 
-export default function TennisBallCelebration({ count = 34, floorY = 720 }: { count?: number; floorY?: number }) {
+export default function TennisBallCelebration({ count = 34, floorY }: { count?: number; floorY?: number }) {
   useKeyframes()
   const [reduced, setReduced] = useState(false)
+  const [vh, setVh] = useState(700)
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
     setReduced(mq.matches)
+    setVh(window.innerHeight)
   }, [])
+
+  const effectiveFloorY = floorY ?? vh - 20
 
   const balls = useMemo<Ball[]>(() => {
     return Array.from({ length: count }, (_, i) => {
@@ -74,17 +78,17 @@ export default function TennisBallCelebration({ count = 34, floorY = 720 }: { co
         dur: 2.4 + Math.random() * 0.9,
         delay: Math.random() * 0.5,
         size,
-        floor: floorY - size,
+        floor: effectiveFloorY - size,
         b1, b2, b3,
         spin: (60 + Math.random() * 140) * (Math.random() < 0.5 ? 1 : -1),
       }
     })
-  }, [count, floorY])
+  }, [count, effectiveFloorY])
 
   if (reduced) return null
 
   return (
-    <div aria-hidden style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 30 }}>
+    <div aria-hidden style={{ position: 'fixed', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 30 }}>
       {balls.map(b => (
         <div key={b.id} style={{
           position: 'absolute', top: 0, left: `${b.left}%`,
