@@ -12,6 +12,7 @@ export type Database = {
           email: string | null
           role: string
           created_at: string
+          last_login_at?: string | null
         }
         Insert: {
           id: string
@@ -152,6 +153,19 @@ export type Database = {
       check_email_available: {
         Args: { p_email: string }
         Returns: string   // 'available' | 'registered' | 'pending' | 'invited' | 'rejected'
+      }
+      get_profiles_with_last_login: {
+        Args: Record<string, never>
+        Returns: Array<{
+          id: string
+          name: string
+          first_name: string | null
+          last_name: string | null
+          email: string | null
+          role: string
+          created_at: string
+          last_login_at: string | null
+        }>
       }
     }
   }

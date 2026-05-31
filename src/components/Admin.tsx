@@ -166,7 +166,7 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
       const [{ data: corr }, { data: sess }, { data: prof }, codeData, regs] = await Promise.all([
         supabase.from('correction_requests').select('*, sessions(*)').order('created_at', { ascending: false }),
         supabase.from('sessions').select('*').order('start_at', { ascending: false }),
-        supabase.from('profiles').select('*').order('name'),
+        supabase.rpc('get_profiles_with_last_login'),
         supabase.from('settings').select('value').eq('id', 'lock_code').single(),
         supabase.from('registration_requests').select('*').order('created_at', { ascending: false }),
       ])
@@ -644,6 +644,10 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
                 </div>
               )
             }
+            const userSessions = sessions.filter(s => s.user_id === u.id && s.status !== 'cancelled')
+            const lastLogin = u.last_login_at
+              ? new Date(u.last_login_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })
+              : 'Noch nie'
             return (
               <div key={u.id} style={{
                 background: '#fff', border: `2px solid ${BK}`, borderRadius: 4,
@@ -661,8 +665,10 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
                   <div style={{ fontSize: 11, color: '#888', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {u.email ?? '–'}
                   </div>
-                  <div style={{ fontSize: 10, color: '#aaa', letterSpacing: 0.5 }}>
-                    {u.role === 'admin' ? 'Administrator' : 'Mitglied'} · seit {new Date(u.created_at).toLocaleDateString('de-DE')}
+                  <div style={{ fontSize: 10, color: '#aaa', marginTop: 2, display: 'flex', gap: 8 }}>
+                    <span>🕐 {lastLogin}</span>
+                    <span>·</span>
+                    <span>{userSessions.length} Session{userSessions.length !== 1 ? 's' : ''}</span>
                   </div>
                 </div>
                 <StatusPill color={u.role === 'admin' ? BK : '#34c759'} fg={u.role === 'admin' ? Y : '#fff'}>
