@@ -126,17 +126,20 @@ export default function Registrierung() {
     setLoading(true)
     const supabase = createClient()
 
-    const [{ data: existingProfile }, { data: existingRequest }] = await Promise.all([
-      supabase.from('profiles').select('id').eq('email', email.trim().toLowerCase()).maybeSingle(),
-      supabase.from('registration_requests').select('id, status').eq('email', email.trim().toLowerCase()).maybeSingle(),
-    ])
+    const { data: emailStatus } = await supabase.rpc('check_email_available', {
+      p_email: email.trim().toLowerCase(),
+    })
 
-    if (existingProfile) {
+    if (emailStatus === 'registered') {
       setErr('Diese E-Mail-Adresse ist bereits registriert. Du kannst dich direkt einloggen.')
       setLoading(false); return
     }
-    if (existingRequest) {
+    if (emailStatus === 'pending') {
       setErr('Für diese E-Mail-Adresse liegt bereits eine Registrierungsanfrage vor. Bitte hab noch etwas Geduld — die Freigabe kann bis zu 24 Stunden dauern.')
+      setLoading(false); return
+    }
+    if (emailStatus === 'invited') {
+      setErr('Diese E-Mail-Adresse wurde bereits eingeladen. Bitte prüfe dein Postfach (auch Spam) und richte dein Passwort ein.')
       setLoading(false); return
     }
 

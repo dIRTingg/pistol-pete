@@ -149,6 +149,10 @@ export type Database = {
         Args: { p_correction_id: string; p_approve: boolean }
         Returns: undefined
       }
+      check_email_available: {
+        Args: { p_email: string }
+        Returns: string   // 'available' | 'registered' | 'pending' | 'invited' | 'rejected'
+      }
     }
   }
 }
