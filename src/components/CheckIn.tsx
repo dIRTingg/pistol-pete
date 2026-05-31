@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { calcCost, formatDate, formatTime } from '@/lib/helpers'
 import type { Profile } from '@/lib/supabase/types'
+import TennisBallCelebration from './TennisBallCelebration'
 
 const Y  = '#FFE600'
 const BK = '#111'
@@ -117,7 +118,9 @@ export default function CheckIn({ profile, onCheckedIn }: { profile: Profile; on
   if (done) {
     const firstName = profile.first_name ?? profile.name
     return (
-      <div style={{ padding: '0 18px' }}>
+      <div style={{ padding: '0 18px', position: 'relative', overflow: 'hidden', minHeight: '70vh' }}>
+        <TennisBallCelebration count={34} floorY={700} />
+        <div style={{ position: 'relative', zIndex: 20 }}>
         <PeteHero
           kicker="● Eingecheckt"
           title={<>Viel Spaß,<br />{firstName}!</>}
@@ -189,6 +192,7 @@ export default function CheckIn({ profile, onCheckedIn }: { profile: Profile; on
             }}
           >↺ Neuer Check-in</button>
         </div>
+        </div>{/* end zIndex wrapper */}
       </div>
     )
   }
