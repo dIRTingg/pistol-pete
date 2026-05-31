@@ -658,7 +658,12 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
                 }}>{initials}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 13, fontWeight: 900, color: BK }}>{display}</div>
-                  <div style={{ fontSize: 11, color: '#888', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.role === 'admin' ? 'Administrator' : 'Mitglied'} · seit {new Date(u.created_at).toLocaleDateString('de-DE')}</div>
+                  <div style={{ fontSize: 11, color: '#888', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {u.email ?? '–'}
+                  </div>
+                  <div style={{ fontSize: 10, color: '#aaa', letterSpacing: 0.5 }}>
+                    {u.role === 'admin' ? 'Administrator' : 'Mitglied'} · seit {new Date(u.created_at).toLocaleDateString('de-DE')}
+                  </div>
                 </div>
                 <StatusPill color={u.role === 'admin' ? BK : '#34c759'} fg={u.role === 'admin' ? Y : '#fff'}>
                   {u.role === 'admin' ? 'Admin' : 'Mitglied'}

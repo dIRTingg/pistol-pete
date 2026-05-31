@@ -67,6 +67,7 @@ export async function POST(req: NextRequest) {
       first_name: first_name.trim(),
       last_name: last_name.trim(),
       name: `${first_name.trim()} ${last_name.trim()}`,
+      email: email.toLowerCase(),
       role,
     }).eq('id', newUserId)
   }

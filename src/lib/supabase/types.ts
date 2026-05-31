@@ -9,6 +9,7 @@ export type Database = {
           name: string
           first_name: string | null
           last_name: string | null
+          email: string | null
           role: string
           created_at: string
         }
@@ -17,6 +18,7 @@ export type Database = {
           name: string
           first_name?: string | null
           last_name?: string | null
+          email?: string | null
           role?: string
           created_at?: string
         }
@@ -24,6 +26,7 @@ export type Database = {
           name?: string
           first_name?: string | null
           last_name?: string | null
+          email?: string | null
           role?: string
         }
         Relationships: []
