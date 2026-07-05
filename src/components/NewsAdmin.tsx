@@ -218,8 +218,20 @@ export default function NewsAdmin({ onChanged }: { onChanged?: () => void }) {
     setMode('list'); setTick(t => t + 1); onChanged?.()
   }
 
+  // Storage-Pfad aus öffentlicher Bucket-URL extrahieren (nur eigene Uploads, keine externen URLs)
+  const storagePathFromUrl = (url: string | null): string | null => {
+    if (!url) return null
+    const marker = '/news-images/'
+    const i = url.indexOf(marker)
+    return i === -1 ? null : url.slice(i + marker.length)
+  }
+
   const del = async (id: string) => {
     const supabase = createClient()
+    const item = items.find(n => n.id === id)
+    // Zugehöriges Bild aus dem Storage entfernen (best effort, nur eigene Uploads)
+    const path = storagePathFromUrl(item?.image_url ?? null)
+    if (path) await supabase.storage.from('news-images').remove([path])
     await supabase.from('news').delete().eq('id', id)
     setConfirmDel(null); setTick(t => t + 1); onChanged?.()
   }
