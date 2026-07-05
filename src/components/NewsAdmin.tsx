@@ -140,6 +140,8 @@ export default function NewsAdmin({ onChanged }: { onChanged?: () => void }) {
   const [uploadName, setUploadName] = useState('')
   const [msg, setMsg] = useState('')
   const [confirmDel, setConfirmDel] = useState<string | null>(null)
+  const [confirmCleanup, setConfirmCleanup] = useState(false)
+  const [cleaning, setCleaning] = useState(false)
   const [tick, setTick] = useState(0)
 
   // Indeterminate-Balken-Keyframes einmalig injizieren
@@ -234,6 +236,17 @@ export default function NewsAdmin({ onChanged }: { onChanged?: () => void }) {
     if (path) await supabase.storage.from('news-images').remove([path])
     await supabase.from('news').delete().eq('id', id)
     setConfirmDel(null); setTick(t => t + 1); onChanged?.()
+  }
+
+  const cleanupExpired = async () => {
+    setCleaning(true)
+    const supabase = createClient()
+    const expired = items.filter(n => deriveStatus(n) === 'expired')
+    const paths = expired.map(n => storagePathFromUrl(n.image_url)).filter((p): p is string => !!p)
+    if (paths.length) await supabase.storage.from('news-images').remove(paths)
+    const ids = expired.map(n => n.id)
+    if (ids.length) await supabase.from('news').delete().in('id', ids)
+    setCleaning(false); setConfirmCleanup(false); setTick(t => t + 1); onChanged?.()
   }
 
   // ── FORM ────────────────────────────────────────────────────────────────
@@ -364,6 +377,7 @@ export default function NewsAdmin({ onChanged }: { onChanged?: () => void }) {
   // ── LIST ────────────────────────────────────────────────────────────────
   const active  = items.filter(n => deriveStatus(n) === 'active').length
   const planned = items.filter(n => deriveStatus(n) === 'planned').length
+  const expiredCount = items.filter(n => deriveStatus(n) === 'expired').length
 
   return (
     <div style={{ padding: '0 18px 24px' }}>
@@ -377,6 +391,25 @@ export default function NewsAdmin({ onChanged }: { onChanged?: () => void }) {
         <p style={{ color: '#888', fontSize: 13, textAlign: 'center', padding: 20 }}>Noch keine Nachrichten.</p>
       ) : (
         <>
+          {expiredCount > 0 && (
+            confirmCleanup ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, background: '#fff0ee', border: `2px solid ${RED}`, borderRadius: 4, padding: '10px 12px' }}>
+                <span style={{ fontSize: 12, fontWeight: 800, color: RED, flex: 1 }}>⚠ {expiredCount} abgelaufene löschen (inkl. Bilder)?</span>
+                <button onClick={cleanupExpired} disabled={cleaning} style={{ background: RED, color: '#fff', border: 'none', borderRadius: 3, padding: '6px 12px', cursor: 'pointer', fontWeight: 800, fontSize: 11, fontFamily: 'inherit' }}>{cleaning ? '…' : 'Ja'}</button>
+                <button onClick={() => setConfirmCleanup(false)} style={{ background: '#fff', color: BK, border: `1.5px solid ${BK}`, borderRadius: 3, padding: '6px 12px', cursor: 'pointer', fontWeight: 700, fontSize: 11, fontFamily: 'inherit' }}>Abbr.</button>
+              </div>
+            ) : (
+              <button onClick={() => setConfirmCleanup(true)} style={{
+                width: '100%', marginBottom: 12, background: '#fff', color: '#777',
+                border: `1.5px solid #ccc`, borderRadius: 4, padding: '9px 12px', cursor: 'pointer',
+                fontFamily: 'inherit', fontWeight: 800, fontSize: 11, letterSpacing: 1, textTransform: 'uppercase',
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#777" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" /></svg>
+                {expiredCount} Abgelaufene löschen
+              </button>
+            )
+          )}
           <div style={{ fontSize: 11, fontWeight: 800, color: '#666', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>
             Alle Nachrichten · {items.length}
           </div>
