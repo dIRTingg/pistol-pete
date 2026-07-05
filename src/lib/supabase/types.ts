@@ -135,6 +135,58 @@ export type Database = {
         }
         Relationships: []
       }
+      news: {
+        Row: {
+          id: string
+          title: string
+          body: string
+          image_url: string | null
+          link_target: string | null
+          link_label: string | null
+          published_at: string
+          expires_at: string | null
+          created_at: string
+          created_by: string | null
+        }
+        Insert: {
+          id?: string
+          title: string
+          body: string
+          image_url?: string | null
+          link_target?: string | null
+          link_label?: string | null
+          published_at?: string
+          expires_at?: string | null
+          created_at?: string
+          created_by?: string | null
+        }
+        Update: {
+          title?: string
+          body?: string
+          image_url?: string | null
+          link_target?: string | null
+          link_label?: string | null
+          published_at?: string
+          expires_at?: string | null
+        }
+        Relationships: []
+      }
+      news_reads: {
+        Row: {
+          user_id: string
+          news_id: string
+          read_at: string
+        }
+        Insert: {
+          user_id: string
+          news_id: string
+          read_at?: string
+        }
+        Update: {
+          read_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: Record<string, never>
     Functions: {
@@ -167,6 +219,14 @@ export type Database = {
           last_login_at: string | null
         }>
       }
+      get_unread_news_count: {
+        Args: Record<string, never>
+        Returns: number
+      }
+      mark_all_news_read: {
+        Args: Record<string, never>
+        Returns: undefined
+      }
     }
   }
 }
@@ -177,3 +237,5 @@ export type Session = Database['public']['Tables']['sessions']['Row']
 export type CorrectionRequest = Database['public']['Tables']['correction_requests']['Row']
 export type RegistrationRequest = Database['public']['Tables']['registration_requests']['Row']
 export type Setting = Database['public']['Tables']['settings']['Row']
+export type News = Database['public']['Tables']['news']['Row']
+export type NewsRead = Database['public']['Tables']['news_reads']['Row']
