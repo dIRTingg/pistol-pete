@@ -137,9 +137,22 @@ export default function NewsAdmin({ onChanged }: { onChanged?: () => void }) {
   const [form, setForm] = useState<FormState>(emptyForm())
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [uploadName, setUploadName] = useState('')
   const [msg, setMsg] = useState('')
   const [confirmDel, setConfirmDel] = useState<string | null>(null)
   const [tick, setTick] = useState(0)
+
+  // Indeterminate-Balken-Keyframes einmalig injizieren
+  useEffect(() => {
+    if (document.getElementById('pp-upload-kf')) return
+    const s = document.createElement('style')
+    s.id = 'pp-upload-kf'
+    s.textContent = `
+      @keyframes pp-upload-bar { 0% { left: -45%; } 100% { left: 100%; } }
+      @keyframes pp-spin { to { transform: rotate(360deg); } }
+    `
+    document.head.appendChild(s)
+  }, [])
 
   useEffect(() => {
     const load = async () => {
@@ -163,15 +176,17 @@ export default function NewsAdmin({ onChanged }: { onChanged?: () => void }) {
   }
 
   const handleUpload = async (file: File) => {
-    setUploading(true); setMsg('')
+    if (!file.type.startsWith('image/')) { setMsg('✕ Bitte eine Bilddatei wählen (JPG, PNG).'); return }
+    if (file.size > 5 * 1024 * 1024)     { setMsg('✕ Bild ist zu groß (max. 5 MB).'); return }
+    setUploading(true); setUploadName(file.name); setMsg('')
     const supabase = createClient()
     const ext = file.name.split('.').pop() || 'jpg'
     const path = `${crypto.randomUUID()}.${ext}`
     const { error } = await supabase.storage.from('news-images').upload(path, file, { cacheControl: '3600', upsert: false })
-    if (error) { setMsg('✕ Upload-Fehler: ' + error.message); setUploading(false); return }
+    if (error) { setMsg('✕ Upload-Fehler: ' + error.message); setUploading(false); setUploadName(''); return }
     const { data } = supabase.storage.from('news-images').getPublicUrl(path)
     setForm(f => ({ ...f, image_url: data.publicUrl }))
-    setUploading(false)
+    setUploading(false); setUploadName(''); setMsg('✓ Bild hochgeladen.')
   }
 
   const save = async () => {
@@ -215,7 +230,11 @@ export default function NewsAdmin({ onChanged }: { onChanged?: () => void }) {
       <div style={{ padding: '0 18px 24px' }}>
         <AdminHero title="Nachricht" sub={form.id ? 'Bearbeiten · Schwarzes Brett' : 'Neu · Schwarzes Brett'} />
 
-        {msg && <div style={{ border: `2px solid ${RED}`, borderLeft: `5px solid ${RED}`, background: '#fff0ee', borderRadius: 4, padding: '10px 14px', marginBottom: 12, fontSize: 14 }}>{msg}</div>}
+        {msg && (() => {
+          const ok = msg.startsWith('✓')
+          const c = ok ? GRN : RED
+          return <div style={{ border: `2px solid ${c}`, borderLeft: `5px solid ${c}`, background: ok ? '#f0fff4' : '#fff0ee', borderRadius: 4, padding: '10px 14px', marginBottom: 12, fontSize: 14, color: ok ? '#1e7a3a' : '#333' }}>{msg}</div>
+        })()}
 
         <FieldLabel>Headline</FieldLabel>
         <Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="z.B. Neue Trainingsbälle" />
@@ -243,6 +262,23 @@ export default function NewsAdmin({ onChanged }: { onChanged?: () => void }) {
               <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke={BK} strokeWidth="2.2" strokeLinecap="round"><path d="M2 2l8 8M10 2l-8 8" /></svg>
             </button>
           </div>
+        ) : uploading ? (
+          <div style={{ border: `2px solid ${BK}`, borderRadius: 6, background: '#fff', padding: '16px 14px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+              <div style={{
+                width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
+                border: `3px solid ${Y}`, borderTopColor: BK,
+                animation: 'pp-spin 0.7s linear infinite',
+              }} />
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 0.5 }}>Wird hochgeladen…</div>
+                <div style={{ fontSize: 12, color: '#888', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{uploadName}</div>
+              </div>
+            </div>
+            <div style={{ position: 'relative', height: 8, background: '#eee', borderRadius: 4, overflow: 'hidden', border: `1.5px solid ${BK}` }}>
+              <div style={{ position: 'absolute', top: 0, bottom: 0, width: '45%', background: Y, animation: 'pp-upload-bar 1.1s ease-in-out infinite' }} />
+            </div>
+          </div>
         ) : (
           <label style={{
             border: `2px dashed ${BK}`, borderRadius: 6, background: '#fff', padding: '20px 14px',
@@ -251,8 +287,8 @@ export default function NewsAdmin({ onChanged }: { onChanged?: () => void }) {
             <div style={{ width: 40, height: 40, borderRadius: 6, background: Y, border: `2px solid ${BK}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={BK} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14" /></svg>
             </div>
-            <div style={{ fontSize: 13, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 0.5 }}>{uploading ? 'Wird hochgeladen…' : 'Bild hochladen'}</div>
-            <div style={{ fontSize: 12, color: '#888' }}>Tippen · JPG, PNG</div>
+            <div style={{ fontSize: 13, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 0.5 }}>Bild hochladen</div>
+            <div style={{ fontSize: 12, color: '#888' }}>Tippen · JPG, PNG · max. 5 MB</div>
             <input type="file" accept="image/*" style={{ display: 'none' }}
               onChange={e => { const f = e.target.files?.[0]; if (f) handleUpload(f) }} />
           </label>
