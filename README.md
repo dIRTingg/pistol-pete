@@ -21,11 +21,15 @@ pistol-pete/
 │   │   ├── page.tsx           ← Hauptseite (Auth-Check)
 │   │   └── login/page.tsx     ← Login-Seite
 │   ├── components/
-│   │   ├── AppShell.tsx       ← Navigation + Layout
-│   │   ├── CheckIn.tsx        ← Check-in Formular
+│   │   ├── AppShell.tsx       ← Navigation (5 Tabs) + Layout + News-Badge
+│   │   ├── CheckIn.tsx        ← Check-in Formular + Celebration + News-Banner
 │   │   ├── History.tsx        ← Nutzungshistorie
-│   │   ├── Guide.tsx          ← Schnellanleitung
-│   │   └── Admin.tsx          ← Admin-Bereich
+│   │   ├── Guide.tsx          ← Schnellanleitung Ballmaschine
+│   │   ├── Admin.tsx          ← Admin-Bereich (6 Tabs)
+│   │   ├── News.tsx           ← Schwarzes Brett (Feed)
+│   │   ├── NewsBanner.tsx     ← News-Banner auf Check-in
+│   │   ├── NewsAdmin.tsx      ← Schwarzes Brett (Admin-CRUD)
+│   │   └── TennisBallCelebration.tsx ← Check-in Animation
 │   ├── lib/
 │   │   ├── supabase/
 │   │   │   ├── client.ts      ← Browser-Client
@@ -133,14 +137,27 @@ Die App ist als **Progressive Web App (PWA)** konfiguriert.
 
 | Tabelle | Beschreibung |
 |---|---|
-| `profiles` | Nutzerprofile (Name, Rolle) – verknüpft mit Supabase Auth |
+| `profiles` | Nutzerprofile (Name, E-Mail, Rolle) – verknüpft mit Supabase Auth |
 | `sessions` | Ballmaschinen-Nutzungen (Check-ins) |
 | `correction_requests` | Korrekturanfragen von Mitgliedern |
+| `registration_requests` | Öffentliche Registrierungsanfragen |
+| `settings` | App-Einstellungen (z.B. Schloss-Code) |
+| `news` | Schwarzes Brett — Nachrichten |
+| `news_reads` | Lese-Status der Nachrichten pro Nutzer |
+
+**Storage:** Bucket `news-images` (public read) für Bilder des Schwarzen Bretts.
 
 **Row Level Security (RLS) ist aktiviert:**
 - Mitglieder sehen nur ihre eigenen Daten
 - Admins sehen alle Daten
 - Niemand kann fremde Sessions manipulieren
+- Nachrichten: aktive für alle sichtbar, Verwaltung nur Admins
+
+> ℹ️ Das ursprüngliche `supabase/schema.sql` deckt nur die Basistabellen ab.
+> News-Feature (Tabellen `news`/`news_reads`, Storage-Bucket, RPCs
+> `get_unread_news_count`/`mark_all_news_read`) sowie `check_email_available`
+> und `get_profiles_with_last_login` wurden per SQL im Supabase-Editor nachgezogen.
+> Details siehe `CLAUDE.md` → „Datenbank-Funktionen (RPC)" und „Supabase Storage".
 
 ---
 
