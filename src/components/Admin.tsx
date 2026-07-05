@@ -4,12 +4,13 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { calcCost, formatDate, formatTime } from '@/lib/helpers'
 import type { Session, CorrectionRequest, Profile } from '@/lib/supabase/types'
+import NewsAdmin from './NewsAdmin'
 
 const Y  = '#FFE600'
 const BK = '#111'
 
 type CorrWithSession = CorrectionRequest & { sessions: Session | null }
-type Tab = 'corrections' | 'sessions' | 'users' | 'settings' | 'registrations'
+type Tab = 'corrections' | 'sessions' | 'users' | 'settings' | 'registrations' | 'brett'
 
 // ── atoms ────────────────────────────────────────────────────────────────
 const monoStyle: React.CSSProperties = {
@@ -49,6 +50,7 @@ function AdminTabs({ active, onChange, badges }:
     { id: 'registrations', label: 'Anträge' },
     { id: 'sessions',      label: 'Buchg.' },
     { id: 'users',         label: 'Nutzer' },
+    { id: 'brett',         label: 'Brett' },
     { id: 'settings',      label: 'Set.' },
   ]
   return (
@@ -130,7 +132,7 @@ function PrimaryBtn({ children, color = Y, fg = BK, ...rest }:
 }
 
 // ── component ────────────────────────────────────────────────────────────
-export default function Admin({ refreshKey }: { refreshKey: number }) {
+export default function Admin({ refreshKey, onNewsChanged }: { refreshKey: number; onNewsChanged?: () => void }) {
   const [tab, setTab] = useState<Tab>('corrections')
   const [registrations, setRegistrations] = useState<any[]>([])
   const [invFirst, setInvFirst] = useState('')
@@ -300,6 +302,7 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
     sessions:      `${activeSessions.length} aktiv · ${totalMin} Min · ${totalCost.toFixed(2)} €`,
     users:         `${users.length} aktiv · ${users.filter(u => u.role === 'admin').length} Admin`,
     settings:      'Schloss-Code · App-Konfiguration',
+    brett:         'Schwarzes Brett · Neuigkeiten',
   }
   const heroTitle: Record<Tab, string> = {
     corrections:   'Korrekturen',
@@ -307,6 +310,7 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
     sessions:      'Buchungen',
     users:         'Nutzer',
     settings:      'Einstellungen',
+    brett:         'Schwarzes Brett',
   }
 
   const badges = {
@@ -315,6 +319,18 @@ export default function Admin({ refreshKey }: { refreshKey: number }) {
   }
 
   if (loading) return <div style={{ textAlign: 'center', padding: 40, color: '#888' }}>Lade Daten…</div>
+
+  // ── Schwarzes Brett (eigenes Layout mit eigenem Hero) ──
+  if (tab === 'brett') {
+    return (
+      <div>
+        <div style={{ padding: '0 18px' }}>
+          <AdminTabs active={tab} onChange={setTab} badges={badges} />
+        </div>
+        <NewsAdmin onChanged={onNewsChanged} />
+      </div>
+    )
+  }
 
   return (
     <div style={{ padding: '0 18px 24px' }}>

@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { calcCost, formatDate, formatTime } from '@/lib/helpers'
 import type { Profile } from '@/lib/supabase/types'
 import TennisBallCelebration from './TennisBallCelebration'
+import NewsBanner from './NewsBanner'
 
 const Y  = '#FFE600'
 const BK = '#111'
@@ -67,7 +68,7 @@ function PrimaryBtn({ children, color = Y, fg = BK, ...rest }:
 }
 
 // ── component ────────────────────────────────────────────────────────────
-export default function CheckIn({ profile, onCheckedIn }: { profile: Profile; onCheckedIn: () => void }) {
+export default function CheckIn({ profile, onCheckedIn, onOpenNews }: { profile: Profile; onCheckedIn: () => void; onOpenNews?: () => void }) {
   const now = new Date()
   const today = now.toISOString().slice(0, 10)
   const minDate = `${now.getFullYear()}-01-01`
@@ -190,6 +191,7 @@ export default function CheckIn({ profile, onCheckedIn }: { profile: Profile; on
   // ── Form ───────────────────────────────────────────────────────────────
   return (
     <div style={{ padding: '0 18px' }}>
+      {onOpenNews && <NewsBanner onOpen={onOpenNews} />}
       <PeteHero kicker="Neue Session" title={<>Ab auf<br />den Platz.</>} peteHeight={130} compact />
 
       {err && (

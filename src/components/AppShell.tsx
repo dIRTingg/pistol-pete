@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { Profile } from '@/lib/supabase/types'
@@ -8,23 +8,42 @@ import CheckIn from './CheckIn'
 import History from './History'
 import Guide from './Guide'
 import Admin from './Admin'
+import News from './News'
 
-const Y  = '#FFE600'
-const BK = '#111'
+const Y   = '#FFE600'
+const BK  = '#111'
+const RED = '#ff3b30'
 
-type Page = 'checkin' | 'history' | 'guide' | 'admin'
+type Page = 'checkin' | 'history' | 'guide' | 'news' | 'admin'
 
 export default function AppShell({ profile }: { profile: Profile }) {
   const router = useRouter()
   const [page, setPage] = useState<Page>('checkin')
   const [refreshKey, setRefreshKey] = useState(0)
+  const [unreadNews, setUnreadNews] = useState(0)
+
+  const fetchUnread = async () => {
+    const supabase = createClient()
+    const { data } = await supabase.rpc('get_unread_news_count')
+    setUnreadNews(typeof data === 'number' ? data : 0)
+  }
+
+  useEffect(() => { fetchUnread() }, [refreshKey])
 
   const navItems: { id: Page; label: string }[] = [
     { id: 'checkin', label: 'Check-in' },
     { id: 'history', label: 'Historie' },
-    { id: 'guide',   label: 'Anleitung' },
+    { id: 'guide',   label: 'Anleit.' },
+    { id: 'news',    label: 'Neues' },
     ...(profile.role === 'admin' ? [{ id: 'admin' as Page, label: 'Admin' }] : []),
   ]
+
+  const badges: Partial<Record<Page, number>> = { news: unreadNews }
+
+  const navigateTo = (target: string) => {
+    if (target.startsWith('/')) router.push(target)
+    else setPage(target as Page)
+  }
 
   const doLogout = async () => {
     const supabase = createClient()
@@ -78,6 +97,7 @@ export default function AppShell({ profile }: { profile: Profile }) {
       }}>
         {navItems.map(n => {
           const on = page === n.id
+          const badge = badges[n.id] ?? 0
           return (
             <button
               key={n.id}
@@ -85,6 +105,7 @@ export default function AppShell({ profile }: { profile: Profile }) {
               style={{
                 flex: 1,
                 minWidth: 0,
+                position: 'relative',
                 background: on ? BK : '#fff',
                 color: on ? Y : BK,
                 border: `1.5px solid ${BK}`,
@@ -93,15 +114,25 @@ export default function AppShell({ profile }: { profile: Profile }) {
                 cursor: 'pointer',
                 fontFamily: 'inherit',
                 fontWeight: 900,
-                fontSize: 11,
-                letterSpacing: 0.5,
+                fontSize: 10.5,
+                letterSpacing: 0.4,
                 textTransform: 'uppercase',
                 whiteSpace: 'nowrap',
-                overflow: 'hidden',
+                overflow: 'visible',
                 textOverflow: 'ellipsis',
               }}
             >
               {n.label}
+              {badge > 0 && (
+                <span style={{
+                  position: 'absolute', top: -6, right: -4,
+                  background: RED, color: '#fff',
+                  fontSize: 9, fontWeight: 900, minWidth: 17, height: 17,
+                  borderRadius: 9, padding: '0 4px', lineHeight: '17px',
+                  border: `1.5px solid #fff`,
+                  fontFamily: 'ui-monospace, "JetBrains Mono", Menlo, monospace',
+                }}>{badge > 9 ? '9+' : badge}</span>
+              )}
             </button>
           )
         })}
@@ -117,10 +148,11 @@ export default function AppShell({ profile }: { profile: Profile }) {
 
       {/* ── Content ── */}
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '12px 0 40px' }}>
-        {page === 'checkin' && <CheckIn profile={profile} onCheckedIn={() => setRefreshKey(k => k + 1)} />}
+        {page === 'checkin' && <CheckIn profile={profile} onCheckedIn={() => setRefreshKey(k => k + 1)} onOpenNews={() => setPage('news')} />}
         {page === 'history' && <History profile={profile} refreshKey={refreshKey} />}
         {page === 'guide'   && <Guide />}
-        {page === 'admin' && profile.role === 'admin' && <Admin refreshKey={refreshKey} />}
+        {page === 'news'    && <News onNavigate={navigateTo} onRead={fetchUnread} />}
+        {page === 'admin' && profile.role === 'admin' && <Admin refreshKey={refreshKey} onNewsChanged={fetchUnread} />}
       </div>
 
       {/* ── Slim legal footer ── */}
